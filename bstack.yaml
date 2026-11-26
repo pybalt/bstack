@@ -1,0 +1,76 @@
+name: bstack
+version: 0.1.0
+author: Leonel Baltazar Bravo
+description: >
+  Stack de desarrollo: el ciclo completo de un cambio de codigo, desde el repo
+  hasta el merge. Ordenado por etapa, no por tema, para que el agente sepa que
+  skill cargar segun en que punto esta el trabajo.
+license: MIT
+
+layers:
+  - id: entorno
+    title: Entorno y repositorio
+    blurb: "Autenticacion, clonado y trabajo cuando otro agente toca el mismo repo."
+    skills:
+      - github-auth
+      - github-repo-management
+      - repos-con-sesiones-paralelas
+      - codebase-inspection
+
+  - id: plan
+    title: Entender antes de escribir
+    blurb: "Leer el terreno y acordar el cambio antes de la primera linea."
+    skills:
+      - plan
+      - spike
+      - systematic-debugging
+
+  - id: construir
+    title: Construir
+    blurb: "Test primero, port fiel y skills que se puedan mantener."
+    skills:
+      - test-driven-development
+      - portado-fiel-de-libreria
+      - hermes-agent-skill-authoring
+
+  - id: delegar
+    title: Delegar a CLIs de codigo
+    blurb: "Cuando el volumen no lo hace el agente principal: que CLI, con que encargo."
+    skills:
+      - claude-code
+      - codex
+      - opencode
+      - cursor-orchestration
+
+  - id: revisar
+    title: Revisar
+    blurb: "Antes del PR: seguridad, calidad y simplificacion."
+    skills:
+      - requesting-code-review
+      - github-code-review
+      - simplify-code
+      - ui-anti-slop
+
+  - id: depurar
+    title: Depurar
+    blurb: "Cuando algo no cierra: causa raiz antes que parche."
+    skills:
+      - node-inspect-debugger
+      - python-debugpy
+      - rea-reverse-engineering
+
+  - id: entregar
+    title: Entregar
+    blurb: "Del issue al PR con CI verde, y el deploy cuando corresponde."
+    skills:
+      - github-issues
+      - github-issue-to-pr
+      - github-pr-workflow
+      - cloudflare-workers-deploy
+
+  - id: verificar
+    title: Verificar
+    blurb: "Nada se declara terminado sin prueba ejecutada."
+    skills:
+      - verification-before-completion
+      - dogfood
