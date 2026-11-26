@@ -2,24 +2,21 @@ name: bstack
 version: 0.1.0
 author: Leonel Baltazar Bravo
 description: >
-  Stack de desarrollo: el ciclo completo de un cambio de codigo, desde el repo
-  hasta el merge. Ordenado por etapa, no por tema, para que el agente sepa que
-  skill cargar segun en que punto esta el trabajo.
+  Stack personal de skills de desarrollo ordenado por etapa: contexto,
+  planificacion, construccion, delegacion, depuracion, revision y deploy.
 license: MIT
 
 layers:
   - id: entorno
-    title: Entorno y repositorio
-    blurb: "Autenticacion, clonado y trabajo cuando otro agente toca el mismo repo."
+    title: Contexto y repositorio
+    blurb: "Inspeccion del repo y trabajo seguro cuando varias sesiones tocan el mismo codigo."
     skills:
-      - github-auth
-      - github-repo-management
       - repos-con-sesiones-paralelas
       - codebase-inspection
 
   - id: plan
     title: Entender antes de escribir
-    blurb: "Leer el terreno y acordar el cambio antes de la primera linea."
+    blurb: "Leer el terreno, experimentar rapido y aislar la causa antes de tocar codigo."
     skills:
       - plan
       - spike
@@ -27,50 +24,39 @@ layers:
 
   - id: construir
     title: Construir
-    blurb: "Test primero, port fiel y skills que se puedan mantener."
+    blurb: "TDD, portado fiel de librerias y stack unificado de UI/UX y motion."
     skills:
       - test-driven-development
       - portado-fiel-de-libreria
-      - hermes-agent-skill-authoring
+      - uiux
 
   - id: delegar
     title: Delegar a CLIs de codigo
-    blurb: "Cuando el volumen no lo hace el agente principal: que CLI, con que encargo."
+    blurb: "Cuando conviene delegar ejecucion: que CLI usar y con que encargo."
     skills:
       - claude-code
       - codex
       - opencode
       - cursor-orchestration
 
-  - id: revisar
-    title: Revisar
-    blurb: "Antes del PR: seguridad, calidad y simplificacion."
-    skills:
-      - requesting-code-review
-      - github-code-review
-      - simplify-code
-      - uiux
-
   - id: depurar
     title: Depurar
-    blurb: "Cuando algo no cierra: causa raiz antes que parche."
+    blurb: "Cuando algo no cierra: debugger real y analisis de causa raiz."
     skills:
       - node-inspect-debugger
       - python-debugpy
       - rea-reverse-engineering
 
-  - id: entregar
-    title: Entregar
-    blurb: "Del issue al PR con CI verde, y el deploy cuando corresponde."
+  - id: revisar
+    title: Revisar y verificar
+    blurb: "Revision de calidad, simplificacion y verificacion con evidencia ejecutada."
     skills:
-      - github-issues
-      - github-issue-to-pr
-      - github-pr-workflow
-      - cloudflare-workers-deploy
-
-  - id: verificar
-    title: Verificar
-    blurb: "Nada se declara terminado sin prueba ejecutada."
-    skills:
+      - requesting-code-review
+      - simplify-code
       - verification-before-completion
-      - dogfood
+
+  - id: deploy
+    title: Deploy
+    blurb: "Publicacion cuando corresponde."
+    skills:
+      - cloudflare-workers-deploy

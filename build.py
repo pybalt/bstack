@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """bstack builder.
 
-Lee bstack.yaml, resuelve cada skill en el arbol de skills de Hermes, arma un
-bundle con MANIFEST.json (sha256 por archivo) y lo comprime en dist/.
+Lee bstack.yaml, resuelve cada skill en los directorios locales de skills de
+agentes, arma un bundle con MANIFEST.json (sha256 por archivo) y lo comprime en
+dist/.
 
   python build.py           # construye dist/bstack-<version>.zip
   python build.py --check   # valida que todos los skills existan
@@ -19,18 +20,35 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 
 
-def resolve_skills_dir(explicit: str | None = None) -> Path:
-    """Resolve the local Hermes skills directory across Windows and Unix."""
+def resolve_skills_dirs(explicit: str | None = None) -> list[Path]:
+    """Resolve candidate local skill directories across supported agents."""
     if explicit:
-        return Path(explicit).expanduser()
+        return [Path(explicit).expanduser()]
     if env_dir := os.environ.get("BSTACK_SKILLS_DIR"):
-        return Path(env_dir).expanduser()
+        return [Path(env_dir).expanduser()]
+
+    home = Path.home()
+    candidates: list[Path] = [
+        home / ".agents" / "skills",
+        home / ".gemini" / "config" / "skills",
+        home / ".claude" / "skills",
+        home / ".codex" / "skills",
+    ]
     if hermes_home := os.environ.get("HERMES_HOME"):
-        return Path(hermes_home).expanduser() / "skills"
-    win_dir = Path.home() / "AppData" / "Local" / "hermes" / "skills"
-    if win_dir.exists():
-        return win_dir
-    return Path.home() / ".hermes" / "skills"
+        candidates.append(Path(hermes_home).expanduser() / "skills")
+    candidates.extend([
+        home / "AppData" / "Local" / "hermes" / "skills",
+        home / ".hermes" / "skills",
+    ])
+
+    seen: set[Path] = set()
+    existing: list[Path] = []
+    for c in candidates:
+        resolved = c.resolve() if c.exists() else c
+        if c.exists() and resolved not in seen:
+            seen.add(resolved)
+            existing.append(c)
+    return existing or [candidates[0]]
 
 
 def parse_yaml(path: Path) -> dict:
@@ -71,14 +89,19 @@ def parse_yaml(path: Path) -> dict:
     return data
 
 
-def find_skill(name: str, skills_dir: Path) -> Path | None:
-    if not skills_dir.exists():
-        return None
-    for match in skills_dir.rglob(f"{name}/SKILL.md"):
-        rel_parts = match.relative_to(skills_dir).parts
-        if any(part.startswith(".") for part in rel_parts):
+def find_skill(name: str, skills_dirs: list[Path] | Path) -> Path | None:
+    dirs = [skills_dirs] if isinstance(skills_dirs, Path) else skills_dirs
+    for base in dirs:
+        if not base.exists():
             continue
-        return match.parent
+        direct = base / name / "SKILL.md"
+        if direct.is_file():
+            return direct.parent
+        for match in base.rglob(f"{name}/SKILL.md"):
+            rel_parts = match.relative_to(base).parts
+            if any(part.startswith(".") for part in rel_parts):
+                continue
+            return match.parent
     return None
 
 
@@ -93,15 +116,15 @@ def sha256(p: Path) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--skills-dir", help="Directorio local de skills de Hermes.")
+    ap.add_argument("--skills-dir", help="Directorio local donde buscar los skills.")
     args = ap.parse_args()
 
-    skills_dir = resolve_skills_dir(args.skills_dir)
+    skills_dirs = resolve_skills_dirs(args.skills_dir)
     manifest = parse_yaml(ROOT / "bstack.yaml")
     missing, resolved = [], []
     for layer in manifest["layers"]:
         for name in layer["skills"]:
-            d = find_skill(name, skills_dir)
+            d = find_skill(name, skills_dirs)
             if d is None:
                 missing.append(f"{layer['id']}/{name}")
             else:
@@ -147,8 +170,7 @@ def main() -> int:
         f"# bstack v{manifest.get('version')}\n\n"
         f"{' '.join(manifest.get('description', '').split())}\n\n"
         "## Instalar\n\n"
-        "Copiar cada `skills/<etapa>/<skill>` al directorio de skills del agente\n"
-        "(`~/AppData/Local/hermes/skills/` en Hermes, o `skills.create_dir` del perfil).\n\n"
+        "Copiar cada `skills/<etapa>/<skill>` (o `<skill>` en estructura plana) al directorio de skills de tu agente.\n\n"
         "## Etapas\n\n"
         + "\n".join(f"- **{l['title']}** (`{l['id']}`): {l.get('blurb','')} — {len(l['skills'])} skills" for l in manifest["layers"])
         + f"\n\nTotal: {out['totals']['skills']} skills, {out['totals']['files']} archivos.\n",

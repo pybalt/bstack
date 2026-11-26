@@ -1,34 +1,38 @@
 #!/usr/bin/env python3
-"""bstack installer for Hermes, Claude Code, Codex, and Antigravity.
+"""bstack installer for Antigravity, Claude Code, Codex, and Hermes.
 
 Reads bstack.yaml and installs the declared skills either from a built
-bstack-*.zip bundle or directly from the local Hermes skills tree.
+bstack-*.zip bundle or directly from local agent skill directories.
 """
 import argparse
+import os
 import shutil
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
 
-from build import ROOT, find_skill, parse_yaml, resolve_skills_dir
+from build import ROOT, find_skill, parse_yaml, resolve_skills_dirs
 
-AGENT_CHOICES = ("hermes", "claude", "codex", "antigravity")
+AGENT_CHOICES = ("antigravity", "claude", "codex", "hermes")
 
 
 def agent_target(agent: str) -> tuple[Path, str]:
     """Return (skills_root, layout) for a supported agent."""
     home = Path.home()
-    if agent == "hermes":
-        return resolve_skills_dir(), "layered"
+    if agent == "antigravity":
+        return home / ".gemini" / "config" / "skills", "flat"
     if agent == "claude":
         return home / ".claude" / "skills", "flat"
     if agent == "codex":
         codex_dir = home / ".codex"
         base = codex_dir / "skills" if codex_dir.exists() else home / ".agents" / "skills"
         return base, "flat"
-    if agent == "antigravity":
-        return home / ".gemini" / "config" / "skills", "flat"
+    if agent == "hermes":
+        if hermes_home := os.environ.get("HERMES_HOME"):
+            return Path(hermes_home).expanduser() / "skills", "layered"
+        win_dir = home / "AppData" / "Local" / "hermes" / "skills"
+        return (win_dir if win_dir.exists() else home / ".hermes" / "skills"), "layered"
     raise ValueError(f"Agente no soportado: {agent}")
 
 
@@ -47,21 +51,22 @@ def resolve_sources_from_zip(zip_path: Path, stage: Path, manifest: dict) -> lis
     return resolved
 
 
-def resolve_sources_from_hermes(skills_dir: Path, manifest: dict) -> list[tuple[str, str, Path]]:
-    """Resolve all declared skills from the local Hermes skills directory."""
+def resolve_sources_local(skills_dirs: list[Path], manifest: dict) -> list[tuple[str, str, Path]]:
+    """Resolve all declared skills from local skill directories."""
     resolved: list[tuple[str, str, Path]] = []
     missing: list[str] = []
     for layer in manifest["layers"]:
         lid = layer["id"]
         for name in layer["skills"]:
-            found = find_skill(name, skills_dir)
+            found = find_skill(name, skills_dirs)
             if found is None:
                 missing.append(f"{lid}/{name}")
             else:
                 resolved.append((lid, name, found))
     if missing:
+        searched = ", ".join(str(d) for d in skills_dirs)
         raise FileNotFoundError(
-            f"Faltan {len(missing)} skills en {skills_dir}: " + ", ".join(missing)
+            f"Faltan {len(missing)} skills en [{searched}]: " + ", ".join(missing)
         )
     return resolved
 
@@ -87,7 +92,7 @@ def main() -> int:
     ap.add_argument(
         "--agent",
         choices=[*AGENT_CHOICES, "all"],
-        help="Agente destino (hermes, claude, codex, antigravity, o all).",
+        help="Agente destino (antigravity, claude, codex, hermes, o all).",
     )
     ap.add_argument("--target", type=Path, help="Directorio destino personalizado.")
     ap.add_argument(
@@ -97,17 +102,20 @@ def main() -> int:
         help="Estructura en destino: flat (<dir>/<skill>) o layered (<dir>/<etapa>/<skill>).",
     )
     ap.add_argument("--zip", type=Path, dest="zip_path", help="Bundle bstack-<version>.zip de origen.")
-    ap.add_argument("--skills-dir", help="Directorio local de skills de Hermes.")
+    ap.add_argument("--skills-dir", help="Directorio local origen donde buscar los skills.")
     ap.add_argument("--force", action="store_true", help="Sobrescribe skills existentes en destino.")
-    ap.add_argument("--dry-run", action="store_true", help="Muestra qué haría sin copiar archivos.")
+    ap.add_argument("--dry-run", action="store_true", help="Muestra que haria sin copiar archivos.")
     args = ap.parse_args()
 
     if not args.agent and not args.target:
-        ap.error("Indicá --agent {hermes,claude,codex,antigravity,all} o --target <ruta>.")
+        ap.error("Indica --agent {antigravity,claude,codex,hermes,all} o --target <ruta>.")
 
     manifest = parse_yaml(ROOT / "bstack.yaml")
     default_zip = ROOT / "dist" / f"{manifest.get('name', 'bstack')}-{manifest.get('version', '0.1.0')}.zip"
-    zip_path = args.zip_path or (default_zip if not args.skills_dir and default_zip.is_file() and not resolve_skills_dir().exists() else None)
+    skills_dirs = resolve_skills_dirs(args.skills_dir)
+    zip_path = args.zip_path or (
+        default_zip if not args.skills_dir and default_zip.is_file() and not any(d.exists() for d in skills_dirs) else None
+    )
 
     targets: list[tuple[str, Path, str]] = []
     if args.target:
@@ -125,8 +133,7 @@ def main() -> int:
                 return 1
             sources = resolve_sources_from_zip(zip_path, Path(tmp), manifest)
         else:
-            skills_dir = resolve_skills_dir(args.skills_dir)
-            sources = resolve_sources_from_hermes(skills_dir, manifest)
+            sources = resolve_sources_local(skills_dirs, manifest)
 
         for label, dest_root, layout in targets:
             counts = {"installed": 0, "updated": 0, "skipped": 0}
