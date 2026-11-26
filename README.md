@@ -12,7 +12,7 @@ Está ordenado **por etapa del flujo de trabajo**, no por herramienta, para que 
 | 2 | **Entender antes de escribir** (`plan`) | Leer el terreno y acordar el cambio antes de la primera línea. | `plan`, `spike`, `systematic-debugging` |
 | 3 | **Construir** (`construir`) | Test primero, port fiel y skills que se puedan mantener. | `test-driven-development`, `portado-fiel-de-libreria`, `hermes-agent-skill-authoring` |
 | 4 | **Delegar a CLIs de codigo** (`delegar`) | Cuando el volumen no lo hace el agente principal: qué CLI, con qué encargo. | `claude-code`, `codex`, `opencode`, `cursor-orchestration` |
-| 5 | **Revisar** (`revisar`) | Antes del PR: seguridad, calidad y simplificación. | `requesting-code-review`, `github-code-review`, `simplify-code`, `ui-anti-slop` |
+| 5 | **Revisar** (`revisar`) | Antes del PR: seguridad, calidad y simplificación. | `requesting-code-review`, `github-code-review`, `simplify-code`, `uiux` |
 | 6 | **Depurar** (`depurar`) | Cuando algo no cierra: causa raíz antes que parche. | `node-inspect-debugger`, `python-debugpy`, `rea-reverse-engineering` |
 | 7 | **Entregar** (`entregar`) | Del issue al PR con CI verde, y el deploy cuando corresponde. | `github-issues`, `github-issue-to-pr`, `github-pr-workflow`, `cloudflare-workers-deploy` |
 | 8 | **Verificar** (`verificar`) | Nada se declara terminado sin prueba ejecutada. | `verification-before-completion`, `dogfood` |

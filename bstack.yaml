@@ -49,7 +49,7 @@ layers:
       - requesting-code-review
       - github-code-review
       - simplify-code
-      - ui-anti-slop
+      - uiux
 
   - id: depurar
     title: Depurar
