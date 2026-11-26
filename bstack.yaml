@@ -9,7 +9,7 @@ license: MIT
 layers:
   - id: environment
     title: Environment
-    blurb: "DevEX, Deployments, VM, Terminal, Versioning y Harness."
+    blurb: "DevEX, Org-Knowledge MCP, Deployments, VM, Terminal, Versioning y Harness."
     skills:
       - environment
 

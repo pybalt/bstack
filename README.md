@@ -8,7 +8,7 @@ La definición canónica del stack vive en [`bstack.yaml`](./bstack.yaml) (**7 e
 
 | # | Etapa (`id`) | Qué resuelve | Skills |
 | - | ------------ | ------------ | ------ |
-| 1 | **Environment** (`environment`) | DevEX, Deployments, VM, Terminal, Versioning y Harness. | `environment` |
+| 1 | **Environment** (`environment`) | DevEX, Org-Knowledge MCP, Deployments, VM, Terminal, Versioning y Harness. | `environment` |
 | 2 | **Onboarding** (`onboarding`) | Mapeo real de repos existentes y arranque guiado de proyectos nuevos. | `onboarding` |
 | 3 | **Entender antes de escribir** (`plan`) | Leer el terreno, experimentar rápido y aislar la causa antes de editar. | `plan`, `spike`, `systematic-debugging` |
 | 4 | **Construir** (`construir`) | TDD, portado fiel de librerías y stack unificado de UI/UX y motion. | `test-driven-development`, `portado-fiel-de-libreria`, `uiux` |
