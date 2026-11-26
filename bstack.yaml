@@ -2,17 +2,22 @@ name: bstack
 version: 0.1.0
 author: Leonel Baltazar Bravo
 description: >
-  Stack personal de skills de desarrollo ordenado por etapa: contexto,
-  planificacion, construccion, delegacion, depuracion, revision y deploy.
+  Stack personal de skills de desarrollo ordenado por etapa: environment,
+  onboarding, planificacion, construccion, delegacion, depuracion y revision.
 license: MIT
 
 layers:
-  - id: entorno
-    title: Contexto y repositorio
-    blurb: "Inspeccion del repo y trabajo seguro cuando varias sesiones tocan el mismo codigo."
+  - id: environment
+    title: Environment
+    blurb: "DevEX, Deployments, VM, Terminal, Versioning y Harness."
     skills:
-      - repos-con-sesiones-paralelas
-      - codebase-inspection
+      - environment
+
+  - id: onboarding
+    title: Onboarding
+    blurb: "Mapeo real de repos existentes y arranque guiado de proyectos nuevos."
+    skills:
+      - onboarding
 
   - id: plan
     title: Entender antes de escribir
@@ -54,9 +59,3 @@ layers:
       - requesting-code-review
       - simplify-code
       - verification-before-completion
-
-  - id: deploy
-    title: Deploy
-    blurb: "Publicacion cuando corresponde."
-    skills:
-      - cloudflare-workers-deploy
