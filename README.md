@@ -2,7 +2,7 @@
 
 Stack personal de skills de desarrollo para agentes de código, ordenado **por etapa del flujo de trabajo** y no por herramienta o lenguaje.
 
-La definición canónica del stack vive en [`bstack.yaml`](./bstack.yaml) (**7 etapas, 16 skills**), compatible con cualquier agente que use el estándar `SKILL.md` (Antigravity, Claude Code, Codex, Cursor, Hermes, etc.).
+La definición canónica del stack vive en [`bstack.yaml`](./bstack.yaml) (**7 etapas, 18 skills**), compatible con cualquier agente que use el estándar `SKILL.md` (Antigravity, Claude Code, Codex, Cursor, Hermes, etc.).
 
 ## Etapas del stack
 
@@ -31,7 +31,7 @@ Este repositorio versiona **el manifiesto del stack, el builder y el instalador*
 Requiere Python 3.10+ (sin dependencias externas). Por defecto busca tus skills en `~/.agents/skills`, `~/.gemini/config/skills`, `~/.claude/skills`, `~/.codex/skills` o podés indicar la carpeta con `--skills-dir` o `BSTACK_SKILLS_DIR`.
 
 ```bash
-# Verificar que los 16 skills existan localmente
+# Verificar que los 18 skills existan localmente
 python build.py --check
 
 # Construir dist/bstack-0.1.0.zip con MANIFEST.json
