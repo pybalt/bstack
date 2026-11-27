@@ -1,10 +1,10 @@
 name: bstack
-version: 0.6.1
+version: 0.7.0
 author: Leonel Baltazar Bravo
 description: >
   Personal agentic development skill stack organized by workflow stage:
   environment, onboarding, planning, building (ODD), delegation, debugging,
-  review & QA (RDD), and cross-cutting tools.
+  review & QA (RDD), data engineering & pipelines, and cross-cutting tools.
 license: MIT
 
 layers:
@@ -52,6 +52,14 @@ layers:
     skills:
       - adversarial-review
       - qa-verify
+
+  - id: data
+    title: Data Engineering
+    blurb: "Engine-agnostic data modeling & contracts, idempotent pipelines/orchestration (SQL, dbt/Dataform, DuckDB/Polars/Spark, Airflow/Dagster), and data quality/reconciliation."
+    skills:
+      - data-modeling
+      - data-pipelines
+      - data-quality
 
   - id: cross-cutting
     title: Cross-Cutting

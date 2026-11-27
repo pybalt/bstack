@@ -2,7 +2,7 @@
 
 Personal development skill stack for coding agents, organized **by engineering workflow stage** rather than by programming language or vendor CLI.
 
-The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages, 12 curated skills**), compatible with any agent supporting the `SKILL.md` standard (Antigravity, Claude Code, Codex, Cursor, Hermes, etc.).
+The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**9 stages, 15 curated skills**), compatible with any agent supporting the `SKILL.md` standard (Antigravity, Claude Code, Codex, Cursor, Hermes, etc.).
 
 ## Core Principles
 
@@ -23,12 +23,13 @@ The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages
 | 5 | **Delegate** (`delegate`) | Context-safe multi-agent orchestration, worktree isolation, and cross-family model routing. | `delegate` |
 | 6 | **Debug** (`debug`) | Systematic 4-phase root-cause investigation with tight feedback loops and automated `git bisect`. | `systematic-debugging` |
 | 7 | **Review & QA** (`review`) | Receipt-Driven Development (RDD): cross-model adversarial review, live behavioral QA, and fingerprint-bound receipts. | `adversarial-review`, `qa-verify` |
-| 8 | **Cross-Cutting** (`cross-cutting`) | Composable interactive visual briefs (19 pure-SVG engineering charts, zero CDN, desktop + mobile) and multi-family evolutionary crossover optimization. | `visual-brief`, `evolve` |
+| 8 | **Data Engineering** (`data`) | Engine-agnostic schema modeling & data contracts, idempotent pipelines/backfills/orchestration (SQL, dbt/Dataform, DuckDB/Polars/Spark, Airflow/Dagster), and data quality & reconciliation. | `data-modeling`, `data-pipelines`, `data-quality` |
+| 9 | **Cross-Cutting** (`cross-cutting`) | Composable interactive visual briefs (19 pure-SVG engineering charts, zero CDN, desktop + mobile) and multi-family evolutionary crossover optimization. | `visual-brief`, `evolve` |
 
 ## Repository Layout
 
 - `bstack.yaml`: declarative manifest of workflow stages and skills.
-- `skills/<stage>/<skill>/`: all 12 canonical, agent-agnostic skills (`SKILL.md`, `references/`, `scripts/`, `assets/`).
+- `skills/<stage>/<skill>/`: all 15 canonical, agent-agnostic skills (`SKILL.md`, `references/`, `scripts/`, `assets/`).
 - `adapters/<agent>.json`: lightweight per-IDE runtime adapters (`antigravity`, `claude`, `codex`, `cursor`, `hermes`) automatically appended during install so skills leverage each host's native primitives (e.g., Antigravity HTML Artifacts & `<agent-embed>`, `ask_question`, `invoke_subagent`) without polluting the canonical skills.
 - `install.py` / `install.ps1` / `install.sh`: installs the stack directly from `./skills/` (or a `.zip` bundle) and applies the matching host adapter (disable with `--no-adapter`).
 - `build.py`: validates every declared skill and optionally builds an offline `dist/bstack-<version>.zip` bundle with `MANIFEST.json` (`sha256` per file).
@@ -71,10 +72,10 @@ Useful flags: `--force` to overwrite existing skills, `--no-adapter` to install 
 ### Validate & Package (Optional Offline Bundle)
 
 ```bash
-# Verify all 12 declared skills resolve cleanly
+# Verify all 15 declared skills resolve cleanly
 python build.py --check
 
-# Build dist/bstack-0.6.1.zip with MANIFEST.json (sha256 per file)
+# Build dist/bstack-0.7.0.zip with MANIFEST.json (sha256 per file)
 python build.py
 ```
 

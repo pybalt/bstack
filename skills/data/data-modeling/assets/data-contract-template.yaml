@@ -1,0 +1,55 @@
+# Data Contract Template (Engine-Agnostic)
+contract_version: "1.0.0"
+dataset: "gold.fct_orders"
+layer: "gold" # bronze | silver | gold
+owner:
+  team: "data-platform"
+  contact: "#data-alerts"
+  repo: "org/data-warehouse"
+
+grain:
+  description: "One row per finalized order_id"
+  primary_key: ["order_id"]
+  partition_by: "DATE(order_created_at_utc)"
+  cluster_by: ["tenant_id", "order_status"]
+
+sla:
+  freshness_max_lag_minutes: 60
+  schedule: "hourly"
+  expected_daily_rows_min: 1000
+  expected_daily_rows_max: 500000
+  deprecation_notice_days: 30
+
+governance:
+  classification: "internal" # public | internal | confidential | pii | pci | phi
+  retention_days: 1095
+  pii_columns: []
+  erasure_strategy: "pseudonymized_user_key"
+
+columns:
+  - name: "order_id"
+    type: "STRING"
+    nullable: false
+    unique: true
+    description: "Deterministic business order identifier."
+  - name: "tenant_id"
+    type: "STRING"
+    nullable: false
+    description: "Tenant or business unit code."
+  - name: "order_status"
+    type: "STRING"
+    nullable: false
+    allowed_values: ["pending", "paid", "cancelled", "refunded"]
+  - name: "gross_amount_cents"
+    type: "INT64"
+    nullable: false
+    min_value: 0
+    unit: "currency_minor_units"
+  - name: "order_created_at_utc"
+    type: "TIMESTAMP"
+    nullable: false
+    timezone: "UTC"
+  - name: "_ingested_at_utc"
+    type: "TIMESTAMP"
+    nullable: false
+    timezone: "UTC"
