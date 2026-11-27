@@ -49,9 +49,11 @@ def validate(html_path: Path) -> dict:
     if not re.search(r'<meta\s+name=["\']viewport["\']', src, re.I):
         failures.append('Missing <meta name="viewport" content="width=device-width,initial-scale=1"> for mobile rendering.')
 
-    # XSS hygiene
+    # XSS & CSP hygiene
     if re.search(r"\.(?:innerHTML|outerHTML)\s*=|document\.write\s*\(", src):
         failures.append("Unsafe DOM sink detected (innerHTML/outerHTML/document.write); use textContent/createTextNode.")
+    if re.search(r'<script[^>]+src=["\']https?://', src, re.I):
+        failures.append("External CDN <script src=...> detected; keep visual-brief 100% inline/CSP-safe for offline & IDE artifacts.")
 
     # Contrast check on light and dark CSS blocks
     light_m = re.search(r":root\s*\{([^}]+)\}", src)
@@ -71,7 +73,33 @@ def validate(html_path: Path) -> dict:
                     if r < minimum:
                         failures.append(f"WCAG {theme_name} {kind}: --{fg} on --{bg} is {r:.2f}:1 (min {minimum}:1)")
 
-    # Data block check + copy limits
+    # Data block check + recursive copy limits (supports composable blocks + grid)
+    def check_items(items: list) -> None:
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            label = item.get("id", item.get("title", "item"))
+            lead = item.get("lead", "")
+            if lead and word_count(lead) > 16:
+                warnings.append(f"Copy density: '{label}' lead has {word_count(lead)} words (target <= 14).")
+            for grp in item.get("details", []):
+                for bullet in grp.get("items", []):
+                    if word_count(bullet) > 14:
+                        warnings.append(f"Copy density: bullet in '{label}' has {word_count(bullet)} words (target <= 12).")
+
+    def walk_blocks(blocks: list) -> None:
+        for b in blocks:
+            if not isinstance(b, dict):
+                continue
+            if b.get("type") == "grid":
+                walk_blocks(b.get("blocks", []))
+                continue
+            check_items(b.get("nodes", []) + b.get("options", []) + b.get("cards", []) + b.get("points", []))
+            for z in b.get("zones", []):
+                check_items(z.get("nodes", []))
+            for qd in b.get("quadrants", []):
+                check_items(qd.get("items", []))
+
     data_m = re.search(r"//\s*<DATA>\s*(.*?)\s*//\s*</DATA>", src, re.S)
     if not data_m:
         warnings.append("No // <DATA> ... // </DATA> separation block found.")
@@ -82,14 +110,7 @@ def validate(html_path: Path) -> dict:
             try:
                 brief = json.loads(json_m.group(1))
                 for section in brief.get("views", []):
-                    for item in section.get("nodes", []) + section.get("options", []) + section.get("cards", []):
-                        lead = item.get("lead", "")
-                        if lead and word_count(lead) > 16:
-                            warnings.append(f"Copy density: '{item.get('id', item.get('title'))}' lead has {word_count(lead)} words (target <= 14).")
-                        for grp in item.get("details", []):
-                            for bullet in grp.get("items", []):
-                                if word_count(bullet) > 14:
-                                    warnings.append(f"Copy density: bullet in '{item.get('id', item.get('title'))}' has {word_count(bullet)} words (target <= 12).")
+                    walk_blocks(section.get("blocks", [section]))
             except json.JSONDecodeError as exc:
                 failures.append(f"Invalid JSON inside BRIEF // <DATA> block: {exc}")
 

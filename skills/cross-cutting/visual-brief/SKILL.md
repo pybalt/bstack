@@ -1,13 +1,13 @@
 ---
 name: visual-brief
 description: "Use when replacing dense technical walls of text (grilling trade-offs, architecture debates, system/process diagrams, change reports, proposals, or UI taste comparisons) with a self-contained interactive visual HTML artifact responsive on both desktop and mobile. Do not use for production app UI (use uiux) or short answers where 5 lines of text suffice."
-version: 1.0.0
+version: 1.1.0
 author: Leonel Baltazar Bravo
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [visual-brief, diagrams, slides, decision-board, walkthrough, cognitive-load, interactive-html, responsive]
+    tags: [visual-brief, diagrams, charts, svg, slides, decision-board, walkthrough, cognitive-load, interactive-html, responsive]
     related_skills: [grill, onboarding, evolve, systematic-debugging, uiux]
 ---
 
@@ -30,9 +30,9 @@ Load **only** the reference(s) needed for the artifact being built:
 | Copy density, 3-level disclosure, 2×2 desirability palette & chat-first decisions | `references/ux-and-copy-rules.md` | Anti-wall-of-text rules + artifact-to-chat workflow |
 | Single-file HTML contract, desktop+mobile layout, WCAG contrast, XSS safety & QA | `references/html-contract-and-qa.md` | Standalone HTML spec + verification checklist |
 
-**Reusable Shell & Validator (Preferred Workflow):**
-1. Copy **`assets/brief-shell.html`** to the target `.html` path and edit **only** the `const BRIEF = { ... };` JSON between `// <DATA>` and `// </DATA>` (supports `flow`, `decision`, `matrix2x2`, `walkthrough`, and `slides` views out of the box).
-2. Validate deterministically before delivery: `python3 scripts/validate_brief.py <output.html>` (checks doctype, viewport, light/dark WCAG contrast, zero `innerHTML`, and copy-density caps).
+**Composable Block Engine & Validator (Preferred Workflow):**
+1. Copy **`assets/brief-shell.html`** to the target `.html` path and edit **only** the `const BRIEF = { ... };` JSON between `// <DATA>` and `// </DATA>`. Each view supports either a single block or a composable `blocks: [...]` stack (including 2-column `grid` rows) combining **15 native blocks and 6 pure-SVG engineering charts** (`quadrant-plot`, `scatter` + Pareto frontier, `bell` Gaussian distribution + `p50`/`p95`/`p99` + SLO, `radar`, `heatmap`, `pareto` 80/20, plus `profile`, `flow`, `pugh`, `matrix2x2`, `table`, `walkthrough`, `checks`, `callout`, `slides`) with **zero external CDNs** (100% CSP-safe and offline).
+2. Validate deterministically before delivery: `python3 scripts/validate_brief.py <output.html>` (checks doctype, viewport, light/dark WCAG contrast, zero `innerHTML`, zero external `<script src>`, and recursive copy-density caps).
 
 ## Non-Negotiable Operating Laws
 
