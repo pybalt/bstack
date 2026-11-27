@@ -1,0 +1,7 @@
+{
+  "agent": "cursor",
+  "skills": {
+    "visual-brief": "## Host Runtime Adapter (Cursor)\n\n- Generate a standalone `.html` file from `assets/brief-shell.html`, validate with `python3 scripts/validate_brief.py <file.html>`, and preview in Cursor's built-in browser or open locally.",
+    "delegate": "## Host Runtime Adapter (Cursor)\n\n- Use Cursor subagents and parallel worktrees for independent editing slices with explicit owned-file and do-not-touch boundaries."
+  }
+}

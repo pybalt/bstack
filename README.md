@@ -28,8 +28,9 @@ The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages
 ## Repository Layout
 
 - `bstack.yaml`: declarative manifest of workflow stages and skills.
-- `skills/<stage>/<skill>/`: all 12 self-contained skills (`SKILL.md`, `references/`, `scripts/`, `assets/`).
-- `install.py` / `install.ps1` / `install.sh`: installs the stack directly from `./skills/` (or a `.zip` bundle) into your target agent.
+- `skills/<stage>/<skill>/`: all 12 canonical, agent-agnostic skills (`SKILL.md`, `references/`, `scripts/`, `assets/`).
+- `adapters/<agent>.json`: lightweight per-IDE runtime adapters (`antigravity`, `claude`, `codex`, `cursor`, `hermes`) automatically appended during install so skills leverage each host's native primitives (e.g., Antigravity HTML Artifacts & `<agent-embed>`, `ask_question`, `invoke_subagent`) without polluting the canonical skills.
+- `install.py` / `install.ps1` / `install.sh`: installs the stack directly from `./skills/` (or a `.zip` bundle) and applies the matching host adapter (disable with `--no-adapter`).
 - `build.py`: validates every declared skill and optionally builds an offline `dist/bstack-<version>.zip` bundle with `MANIFEST.json` (`sha256` per file).
 
 ## Quick Install
@@ -65,7 +66,7 @@ Default destination paths:
 - **Cursor**: `~/.cursor/skills/<skill>`
 - **Hermes**: `~/.hermes/skills/<stage>/<skill>` (Unix) or `~/AppData/Local/hermes/skills/<stage>/<skill>` (Windows)
 
-Useful flags: `--force` to overwrite existing skills, `--target <path>` for a custom directory, `--layout flat|layered` to choose flat or stage-nested folders, `--zip <bundle>` to install from a packaged archive, and `--dry-run` to preview changes.
+Useful flags: `--force` to overwrite existing skills, `--no-adapter` to install raw agent-agnostic skills without IDE-specific bindings, `--target <path>` for a custom directory, `--layout flat|layered` to choose flat or stage-nested folders, `--zip <bundle>` to install from a packaged archive, and `--dry-run` to preview changes.
 
 ### Validate & Package (Optional Offline Bundle)
 
@@ -73,7 +74,7 @@ Useful flags: `--force` to overwrite existing skills, `--target <path>` for a cu
 # Verify all 12 declared skills resolve cleanly
 python build.py --check
 
-# Build dist/bstack-0.3.0.zip with MANIFEST.json (sha256 per file)
+# Build dist/bstack-0.4.0.zip with MANIFEST.json (sha256 per file)
 python build.py
 ```
 

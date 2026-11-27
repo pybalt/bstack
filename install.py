@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""bstack installer for Antigravity, Claude Code, Codex, and Hermes.
+"""bstack installer for Antigravity, Claude Code, Codex, Cursor, and Hermes.
 
-Reads bstack.yaml and installs the declared skills either from a built
-bstack-*.zip bundle or directly from local agent skill directories.
+Reads bstack.yaml, installs the declared skills (from ./skills, local skill
+directories, or a bstack-*.zip bundle), and optionally applies lightweight
+per-IDE runtime adapters from adapters/<agent>.json without modifying canonical
+source skills.
 """
 import argparse
+import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -15,6 +19,8 @@ from pathlib import Path
 from build import ROOT, find_skill, parse_yaml, resolve_skills_dirs
 
 AGENT_CHOICES = ("antigravity", "claude", "codex", "cursor", "hermes")
+ADAPTER_START = "<!-- bstack:adapter:start -->"
+ADAPTER_END = "<!-- bstack:adapter:end -->"
 
 
 def agent_target(agent: str) -> tuple[Path, str]:
@@ -36,6 +42,34 @@ def agent_target(agent: str) -> tuple[Path, str]:
         win_dir = home / "AppData" / "Local" / "hermes" / "skills"
         return (win_dir if win_dir.exists() else home / ".hermes" / "skills"), "layered"
     raise ValueError(f"Unsupported agent: {agent}")
+
+
+def load_adapter(agent: str) -> dict[str, str]:
+    path = ROOT / "adapters" / f"{agent}.json"
+    if not path.is_file():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data.get("skills", {}) if isinstance(data, dict) else {}
+
+
+def apply_adapter(dst: Path, skill_name: str, adapter_map: dict[str, str], dry_run: bool) -> bool:
+    snippet = adapter_map.get(skill_name)
+    if not snippet:
+        return False
+    if dry_run:
+        return True
+    skill_md = dst / "SKILL.md"
+    if not skill_md.is_file():
+        return False
+    txt = skill_md.read_text(encoding="utf-8")
+    block = f"\n\n{ADAPTER_START}\n{snippet.strip()}\n{ADAPTER_END}\n"
+    rx = re.compile(rf"\n*{re.escape(ADAPTER_START)}.*?{re.escape(ADAPTER_END)}\n*", re.S)
+    if rx.search(txt):
+        updated = rx.sub(lambda _: block, txt)
+    else:
+        updated = txt.rstrip() + block
+    skill_md.write_text(updated, encoding="utf-8")
+    return True
 
 
 def resolve_sources_from_zip(zip_path: Path, stage: Path, manifest: dict) -> list[tuple[str, str, Path]]:
@@ -105,6 +139,7 @@ def main() -> int:
     )
     ap.add_argument("--zip", type=Path, dest="zip_path", help="Source bstack-<version>.zip bundle.")
     ap.add_argument("--skills-dir", help="Local source directory to search for skills.")
+    ap.add_argument("--no-adapter", action="store_true", help="Skip per-IDE host runtime adapter injection.")
     ap.add_argument("--force", action="store_true", help="Overwrite existing skills at destination.")
     ap.add_argument("--dry-run", action="store_true", help="Preview actions without copying files.")
     args = ap.parse_args()
@@ -113,7 +148,7 @@ def main() -> int:
         ap.error("Specify --agent {antigravity,claude,codex,cursor,hermes,all} or --target <path>.")
 
     manifest = parse_yaml(ROOT / "bstack.yaml")
-    default_zip = ROOT / "dist" / f"{manifest.get('name', 'bstack')}-{manifest.get('version', '0.1.0')}.zip"
+    default_zip = ROOT / "dist" / f"{manifest.get('name', 'bstack')}-{manifest.get('version', '0.4.0')}.zip"
     skills_dirs = resolve_skills_dirs(args.skills_dir)
     zip_path = args.zip_path or (
         default_zip if not args.skills_dir and default_zip.is_file() and not any(d.exists() for d in skills_dirs) else None
@@ -138,15 +173,19 @@ def main() -> int:
             sources = resolve_sources_local(skills_dirs, manifest)
 
         for label, dest_root, layout in targets:
-            counts = {"installed": 0, "updated": 0, "skipped": 0}
+            counts = {"installed": 0, "updated": 0, "skipped": 0, "adapted": 0}
+            adapter_map = {} if (args.no_adapter or label == "custom") else load_adapter(label)
             for layer_id, name, src in sources:
                 dst = (dest_root / layer_id / name) if layout == "layered" else (dest_root / name)
                 status = copy_skill(src, dst, force=args.force, dry_run=args.dry_run)
                 counts[status] += 1
+                if status != "skipped" and apply_adapter(dst, name, adapter_map, dry_run=args.dry_run):
+                    counts["adapted"] += 1
             prefix = "[dry-run] " if args.dry_run else ""
             print(
                 f"{prefix}{label} ({dest_root}, {layout}): "
-                f"{counts['installed']} installed, {counts['updated']} updated, {counts['skipped']} skipped"
+                f"{counts['installed']} installed, {counts['updated']} updated, "
+                f"{counts['skipped']} skipped, {counts['adapted']} adapted"
             )
     return 0
 

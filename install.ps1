@@ -6,6 +6,7 @@ param(
     [string]$Layout,
     [string]$Zip,
     [string]$SkillsDir,
+    [switch]$NoAdapter,
     [switch]$Force,
     [switch]$DryRun
 )
@@ -19,6 +20,7 @@ if ($Target) { $ArgsList += @("--target", $Target) }
 if ($Layout) { $ArgsList += @("--layout", $Layout) }
 if ($Zip) { $ArgsList += @("--zip", $Zip) }
 if ($SkillsDir) { $ArgsList += @("--skills-dir", $SkillsDir) }
+if ($NoAdapter) { $ArgsList += "--no-adapter" }
 if ($Force) { $ArgsList += "--force" }
 if ($DryRun) { $ArgsList += "--dry-run" }
 

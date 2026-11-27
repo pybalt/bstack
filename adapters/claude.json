@@ -1,0 +1,7 @@
+{
+  "agent": "claude",
+  "skills": {
+    "visual-brief": "## Host Runtime Adapter (Claude Code)\n\n- Generate a standalone `.html` file from `assets/brief-shell.html`, validate with `python3 scripts/validate_brief.py <file.html>`, and return the clickable file path so the user can open it locally without a server.",
+    "delegate": "## Host Runtime Adapter (Claude Code)\n\n- Use Claude Code's native subagent tool with `isolation: \"worktree\"` for concurrent editing tasks and read-only subagents for parallel exploration or fresh-context adversarial reviews."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "agent": "codex",
+  "skills": {
+    "visual-brief": "## Host Runtime Adapter (Codex)\n\n- Generate a standalone `.html` file from `assets/brief-shell.html`, validate with `python3 scripts/validate_brief.py <file.html>`, and share the output path for browser inspection.",
+    "delegate": "## Host Runtime Adapter (Codex)\n\n- Isolate parallel editing workers in separate `git worktree` directories with explicit verification commands and bounded retry caps."
+  }
+}

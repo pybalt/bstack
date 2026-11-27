@@ -1,0 +1,7 @@
+{
+  "agent": "hermes",
+  "skills": {
+    "visual-brief": "## Host Runtime Adapter (Hermes)\n\n- Generate a standalone `.html` file from `assets/brief-shell.html`, validate with `python3 scripts/validate_brief.py <file.html>`, and share the output file path.",
+    "delegate": "## Host Runtime Adapter (Hermes)\n\n- Dispatch isolated sub-tasks with minimal scoped toolsets, disjoint owned files or git worktrees, and explicit verification commands."
+  }
+}
