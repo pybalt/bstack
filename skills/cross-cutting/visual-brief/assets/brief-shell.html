@@ -198,6 +198,28 @@ table.hm-tbl{width:100%;border-collapse:separate;border-spacing:4px;font-size:12
 .hm-cell{border-radius:6px;padding:10px 6px;text-align:center;font-weight:600;cursor:pointer;border:1px solid transparent;transition:border-color 140ms var(--ease)}
 .hm-cell:hover{border-color:var(--ink)}
 
+/* KPI Sparkline Strip & Donut Layout */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.kpi-card{text-align:left;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color 150ms var(--ease)}
+.kpi-card:hover{border-color:var(--ctl)}
+.kpi-card.selected{border-color:var(--accentA);box-shadow:0 0 0 2px var(--accentARing)}
+.kpi-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kpi-lbl{font-size:12px;font-weight:500;color:var(--muted)}
+.kpi-delta{font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:99px;font-variant-numeric:tabular-nums;background:var(--zone);color:var(--muted)}
+.kpi-delta.tone-ok{background:var(--okSoft);color:var(--ok)}
+.kpi-delta.tone-danger{background:var(--dangerSoft);color:var(--danger)}
+.kpi-delta.tone-warn{background:var(--warnSoft);color:var(--warn)}
+.kpi-val{font-size:23px;font-weight:700;letter-spacing:-.025em;line-height:1.1;font-variant-numeric:tabular-nums}
+.donut-wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:20px}
+.donut-svg-box{width:200px;flex:none}
+.donut-leg{flex:1 1 200px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.donut-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--ink);font:500 13px var(--sans);cursor:pointer;text-align:left;width:100%}
+.donut-row:hover{background:var(--zone);border-color:var(--line)}
+.donut-row-l{display:inline-flex;align-items:center;gap:8px;min-width:0}
+.donut-row-r{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px;white-space:nowrap}
+.sankey-link{cursor:pointer;transition:fill-opacity 140ms var(--ease)}
+.sankey-link:hover{fill-opacity:.58!important}
+
 /* Before/After & Checks */
 .ba-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
 .ba-col{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:8px}
@@ -376,6 +398,11 @@ function walkBlocks(blocks) {
     (b.options || []).forEach(collect);
     (b.quadrants || []).forEach((qd) => (qd.items || []).forEach(collect));
     (b.points || []).forEach(collect);
+    (b.items || []).forEach(collect);
+    (b.groups || []).forEach(collect);
+    (b.stages || []).forEach(collect);
+    (b.tasks || []).forEach(collect);
+    (b.bins || []).forEach(collect);
   });
 }
 (BRIEF.views || []).forEach((v) => walkBlocks(v.blocks || [v]));
@@ -489,7 +516,8 @@ function makeNodeCard(n) {
 // 1. Continuous 2x2 Quadrant Plot with Desirability Color Intensity Field
 function renderQuadrantPlot(b, wrap) {
   const card = makePanel(b.title || "Impact vs Effort", b.subtitle);
-  const W = 540, H = 340, pad = { l: 46, r: 24, t: 26, b: 40 };
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 820 : 540, H = 340, pad = { l: 46, r: 24, t: 26, b: 40 };
   const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
   const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "2x2 Quadrant Plot" });
 
@@ -582,7 +610,8 @@ function renderScatter(b, wrap) {
   const pts = b.points || [];
   if (!pts.length) { wrap.appendChild(card); return; }
 
-  const W = 540, H = 310, pad = { l: 52, r: 22, t: 22, b: 40 };
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 540, H = 310, pad = { l: 52, r: 22, t: 22, b: 40 };
   const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
   const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
   const xMin = b.xMin != null ? b.xMin : Math.min(...xs) * 0.9;
@@ -658,7 +687,8 @@ function renderBell(b, wrap) {
   const curves = b.curves || (b.mean != null ? [{ label: b.label || "Observed", mean: b.mean, sd: b.sd || 10, color: "var(--accentA)" }] : []);
   if (!curves.length) { wrap.appendChild(card); return; }
 
-  const W = 540, H = 310, pad = { l: 44, r: 22, t: 32, b: 42 };
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 540, H = 310, pad = { l: 44, r: 22, t: 32, b: 42 };
   const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
   const pdf = (x, mu, sd) => (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sd) ** 2);
 
@@ -795,13 +825,14 @@ function renderRadar(b, wrap) {
   wrap.appendChild(card);
 }
 
-// 5. Heatmap Matrix (X x Y Color Intensity Grid)
+// 5. Heatmap & Correlation Matrix (X x Y Color Intensity Grid)
 function renderHeatmap(b, wrap) {
   const card = makePanel(b.title || "Intensity Heatmap", b.subtitle);
   const cols = b.cols || [], rows = b.rows || [];
   const allVals = rows.flatMap((r) => r.values || []);
-  const maxV = b.max != null ? b.max : Math.max(1, ...allVals);
-  const minV = b.min != null ? b.min : Math.min(0, ...allVals);
+  const isDiv = b.scale === "diverging";
+  const maxV = b.max != null ? b.max : (isDiv ? Math.max(1, ...allVals.map(Math.abs)) : Math.max(1, ...allVals));
+  const minV = b.min != null ? b.min : (isDiv ? -maxV : Math.min(0, ...allVals));
   const palette = b.scale === "risk" ? [239, 68, 68] : b.scale === "win" ? [22, 163, 74] : [37, 99, 235];
 
   const hw = el("div", "hm-wrap");
@@ -818,12 +849,21 @@ function renderHeatmap(b, wrap) {
     const tr = document.createElement("tr");
     tr.appendChild(el("th", "row-h", r.label));
     (r.values || []).forEach((v, ci) => {
-      const t = Math.max(0, Math.min(1, (v - minV) / ((maxV - minV) || 1)));
-      const td = el("td", "hm-cell", String(v));
+      const td = el("td", "hm-cell", isDiv && typeof v === "number" ? (v > 0 ? `+${v.toFixed(2)}` : v.toFixed(2)) : String(v));
       td.setAttribute("tabindex", "0");
       td.setAttribute("role", "button");
-      td.style.background = `rgba(${palette[0]},${palette[1]},${palette[2]},${(0.07 + t * 0.43).toFixed(2)})`;
-      const info = { title: `${r.label} × ${cols[ci]}`, meta: `Value: ${v} / ${maxV}`, lead: (r.notes && r.notes[ci]) || `Measured intensity ${Math.round(t * 100)}% of scale.` };
+      let pct = 0;
+      if (isDiv) {
+        const mag = Math.min(1, Math.abs(v) / (Math.max(Math.abs(minV), Math.abs(maxV)) || 1));
+        pct = Math.round(mag * 100);
+        const rgb = v >= 0 ? [37, 99, 235] : [220, 38, 38];
+        td.style.background = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${(0.05 + mag * 0.40).toFixed(2)})`;
+      } else {
+        const t = Math.max(0, Math.min(1, (v - minV) / ((maxV - minV) || 1)));
+        pct = Math.round(t * 100);
+        td.style.background = `rgba(${palette[0]},${palette[1]},${palette[2]},${(0.07 + t * 0.43).toFixed(2)})`;
+      }
+      const info = { title: `${r.label} × ${cols[ci]}`, meta: isDiv ? `Correlation: ${v}` : `Value: ${v} / ${maxV}`, lead: (r.notes && r.notes[ci]) || `Measured intensity ${pct}% of scale.` };
       td.addEventListener("click", () => openItem(info));
       td.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
       tr.appendChild(td);
@@ -842,7 +882,8 @@ function renderPareto(b, wrap) {
   const items = [...(b.items || [])].sort((a, c) => c.value - a.value);
   if (!items.length) { wrap.appendChild(card); return; }
 
-  const W = 540, H = 300, pad = { l: 44, r: 44, t: 24, b: 56 };
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 540, H = 300, pad = { l: 44, r: 44, t: 24, b: 56 };
   const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
   const total = items.reduce((a, x) => a + x.value, 0) || 1;
   const maxV = Math.max(...items.map((x) => x.value)) * 1.12;
@@ -881,6 +922,764 @@ function renderPareto(b, wrap) {
   svg.appendChild(sv("path", { d: pathD, fill: "none", stroke: "var(--accentB)", "stroke-width": 2 }));
   linePts.forEach((p) => svg.appendChild(sv("circle", { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.2, fill: "var(--accentB)" })));
 
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 7. KPI Sparkline Metric Strip
+function renderKpi(b, wrap) {
+  const grid = el("div", "kpi-grid");
+  (b.items || []).forEach((it, idx) => {
+    const card = el("button", "kpi-card");
+    card.type = "button";
+    if (it.id) card.setAttribute("data-item-id", it.id);
+    const top = el("div", "kpi-top");
+    top.appendChild(el("span", "kpi-lbl", it.label || ""));
+    if (it.delta) top.appendChild(el("span", "kpi-delta" + (it.deltaTone ? " tone-" + it.deltaTone : ""), it.delta));
+    card.appendChild(top);
+    card.appendChild(el("div", "kpi-val", String(it.value != null ? it.value : "")));
+    const sp = it.spark || [];
+    if (sp.length >= 2) {
+      const W = 200, H = 38, p = 4;
+      const mn = Math.min(...sp), mx = Math.max(...sp), rng = (mx - mn) || 1;
+      const col = it.color || (it.deltaTone === "ok" ? "var(--ok)" : it.deltaTone === "danger" ? "var(--danger)" : it.deltaTone === "warn" ? "var(--warn)" : SERIES_COLORS[idx % SERIES_COLORS.length]);
+      const pts = sp.map((v, i) => [p + (i / (sp.length - 1)) * (W - 2 * p), H - p - ((v - mn) / rng) * (H - 2 * p)]);
+      const d = pts.map((pt, i) => `${i === 0 ? "M" : "L"}${pt[0].toFixed(1)} ${pt[1].toFixed(1)}`).join(" ");
+      const area = `${d} L${pts[pts.length - 1][0].toFixed(1)} ${H - p} L${pts[0][0].toFixed(1)} ${H - p} Z`;
+      const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, "aria-hidden": "true" });
+      svg.appendChild(sv("path", { d: area, fill: col, "fill-opacity": 0.14 }));
+      svg.appendChild(sv("path", { d, fill: "none", stroke: col, "stroke-width": 1.8, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      const last = pts[pts.length - 1];
+      svg.appendChild(sv("circle", { cx: last[0].toFixed(1), cy: last[1].toFixed(1), r: 3, fill: col }));
+      card.appendChild(svg);
+    }
+    const info = Object.assign({ title: it.label, meta: `Current: ${it.value}${it.delta ? " · " + it.delta : ""}` }, it);
+    card.addEventListener("click", () => openItem(info));
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+}
+
+// 8. Multi-Series Line / Area / Confidence Band Chart
+function renderLine(b, wrap) {
+  const card = makePanel(b.title || "Time-Series Trend", b.subtitle);
+  const labels = b.labels || [], series = b.series || [];
+  if (!labels.length || !series.length) { wrap.appendChild(card); return; }
+
+  const leg = el("div", "chart-legend");
+  series.forEach((s, i) => {
+    const col = s.color || SERIES_COLORS[i % SERIES_COLORS.length];
+    const ch = el("span", "leg-chip");
+    const ln = el("i", "leg-line"); ln.style.background = col;
+    ch.appendChild(ln); ch.appendChild(document.createTextNode(s.label));
+    leg.appendChild(ch);
+  });
+  if (b.band && b.band.label) {
+    const ch = el("span", "leg-chip");
+    const d = el("i", "leg-dot"); d.style.background = "var(--accentA)"; d.style.opacity = "0.35";
+    ch.appendChild(d); ch.appendChild(document.createTextNode(b.band.label));
+    leg.appendChild(ch);
+  }
+  if (b.threshold) {
+    const ch = el("span", "leg-chip");
+    const ln = el("i", "leg-line"); ln.style.background = "var(--danger)";
+    ch.appendChild(ln); ch.appendChild(document.createTextNode(b.threshold.label || `Limit ${b.threshold.value}`));
+    leg.appendChild(ch);
+  }
+  card.appendChild(leg);
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 540, H = 300, pad = { l: 60, r: 22, t: 22, b: 40 };
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const allVals = series.flatMap((s) => s.values || []);
+  if (b.band) allVals.push(...(b.band.low || []), ...(b.band.high || []));
+  if (b.threshold) allVals.push(b.threshold.value);
+  const yMin = b.yMin != null ? b.yMin : Math.min(0, Math.min(...allVals) * 0.9);
+  const yMax = b.yMax != null ? b.yMax : Math.max(...allVals) * 1.12;
+  const sx = (i) => pad.l + (labels.length === 1 ? pw / 2 : (i / (labels.length - 1)) * pw);
+  const sy = (v) => pad.t + (1 - (v - yMin) / ((yMax - yMin) || 1)) * ph;
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Line Chart" });
+  for (let i = 0; i <= 4; i++) {
+    const gv = yMin + ((yMax - yMin) * i) / 4;
+    const gy = sy(gv);
+    svg.appendChild(sv("line", { x1: pad.l, y1: gy, x2: pad.l + pw, y2: gy, class: "chart-grid" }));
+    svg.appendChild(sv("text", { x: pad.l - 8, y: gy + 4, class: "chart-lbl", "text-anchor": "end" }, `${Math.round(gv)}${b.unit || ""}`));
+  }
+  const stepX = labels.length > 8 ? Math.ceil(labels.length / 7) : 1;
+  labels.forEach((lbl, i) => {
+    if (i % stepX === 0 || i === labels.length - 1) {
+      svg.appendChild(sv("text", { x: sx(i).toFixed(1), y: pad.t + ph + 16, class: "chart-lbl", "text-anchor": "middle" }, lbl));
+    }
+  });
+  svg.appendChild(sv("line", { x1: pad.l, y1: pad.t + ph, x2: pad.l + pw, y2: pad.t + ph, class: "chart-axis" }));
+  if (b.xLabel) svg.appendChild(sv("text", { x: pad.l + pw / 2, y: H - 6, class: "chart-lbl", "text-anchor": "middle" }, b.xLabel));
+  if (b.yLabel) svg.appendChild(sv("text", { x: 14, y: pad.t + ph / 2, class: "chart-lbl", "text-anchor": "middle", transform: `rotate(-90 14 ${pad.t + ph / 2})` }, b.yLabel));
+
+  if (b.band && b.band.low && b.band.high) {
+    const topPts = b.band.high.map((v, i) => `${sx(i).toFixed(1)},${sy(v).toFixed(1)}`);
+    const botPts = b.band.low.map((v, i) => `${sx(i).toFixed(1)},${sy(v).toFixed(1)}`).reverse();
+    svg.appendChild(sv("polygon", { points: topPts.concat(botPts).join(" "), fill: b.band.color || "var(--accentA)", "fill-opacity": 0.12 }));
+  }
+  if (b.threshold) {
+    const ty = sy(b.threshold.value);
+    svg.appendChild(sv("line", { x1: pad.l, y1: ty, x2: pad.l + pw, y2: ty, stroke: "var(--danger)", "stroke-width": 1.5, "stroke-dasharray": "5 3" }));
+    svg.appendChild(sv("text", { x: pad.l + pw - 4, y: ty - 5, class: "chart-lbl-bold", "text-anchor": "end", fill: "var(--danger)" }, b.threshold.label || `${b.threshold.value}${b.unit || ""}`));
+  }
+
+  series.forEach((s, si) => {
+    const col = s.color || SERIES_COLORS[si % SERIES_COLORS.length];
+    const pts = (s.values || []).map((v, i) => [sx(i), sy(v), v, labels[i]]);
+    const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
+    if (b.area && si === 0) {
+      const areaD = `${d} L${pts[pts.length - 1][0].toFixed(1)} ${(pad.t + ph).toFixed(1)} L${pts[0][0].toFixed(1)} ${(pad.t + ph).toFixed(1)} Z`;
+      svg.appendChild(sv("path", { d: areaD, fill: col, "fill-opacity": 0.11 }));
+    }
+    svg.appendChild(sv("path", { d, fill: "none", stroke: col, "stroke-width": si === 0 ? 2.2 : 1.7, "stroke-dasharray": s.dashed ? "5 4" : "none" }));
+    pts.forEach((p, pi) => {
+      const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+      g.appendChild(sv("circle", { class: "pt-ring", cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 8, fill: col, opacity: 0.1 }));
+      g.appendChild(sv("circle", { class: "pt-core", cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.6, fill: col, stroke: "var(--surface)", "stroke-width": 1.4 }));
+      const info = { title: `${s.label} — ${p[3]}`, meta: `Value: ${p[2]}${b.unit || ""}`, lead: (s.notes && s.notes[pi]) || `Recorded ${p[2]}${b.unit || ""} at ${p[3]}.` };
+      g.addEventListener("click", () => openItem(info));
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+      svg.appendChild(g);
+    });
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 9. Grouped / Stacked Bar Chart (Vertical or Horizontal)
+function renderBar(b, wrap) {
+  const card = makePanel(b.title || "Bar Comparison", b.subtitle);
+  const cats = b.categories || [], series = b.series || [];
+  if (!cats.length || !series.length) { wrap.appendChild(card); return; }
+
+  if (series.length > 1) {
+    const leg = el("div", "chart-legend");
+    series.forEach((s, i) => {
+      const col = s.color || SERIES_COLORS[i % SERIES_COLORS.length];
+      const ch = el("span", "leg-chip");
+      const d = el("i", "leg-dot"); d.style.background = col;
+      ch.appendChild(d); ch.appendChild(document.createTextNode(s.label));
+      leg.appendChild(ch);
+    });
+    card.appendChild(leg);
+  }
+
+  const horiz = b.orientation === "horizontal";
+  const stacked = !!b.stacked;
+  const maxVal = stacked
+    ? Math.max(...cats.map((_, ci) => series.reduce((a, s) => a + (s.values[ci] || 0), 0))) * 1.15
+    : Math.max(...series.flatMap((s) => s.values || [])) * 1.16;
+
+  const isFull = !wrap.classList.contains("block-grid");
+  if (horiz) {
+    const rowH = stacked ? 42 : Math.max(38, series.length * 16 + 14);
+    const W = isFull ? 900 : 540, pad = { l: 118, r: 52, t: 16, b: 30 }, H = pad.t + pad.b + cats.length * rowH;
+    const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Horizontal Bar Chart" });
+    for (let i = 0; i <= 4; i++) {
+      const xv = (maxVal * i) / 4, gx = pad.l + (xv / (maxVal || 1)) * pw;
+      svg.appendChild(sv("line", { x1: gx, y1: pad.t, x2: gx, y2: pad.t + ph, class: "chart-grid" }));
+      svg.appendChild(sv("text", { x: gx, y: H - 10, class: "chart-lbl", "text-anchor": "middle" }, `${Math.round(xv)}${b.unit || ""}`));
+    }
+    cats.forEach((cat, ci) => {
+      const y0 = pad.t + ci * rowH;
+      svg.appendChild(sv("text", { x: pad.l - 10, y: y0 + rowH / 2 + 4, class: "chart-lbl-bold", "text-anchor": "end" }, cat));
+      if (stacked) {
+        let acc = 0;
+        const rowTotal = series.reduce((a, s) => a + (s.values[ci] || 0), 0) || 1;
+        series.forEach((s, si) => {
+          const val = s.values[ci] || 0, col = s.color || SERIES_COLORS[si % SERIES_COLORS.length];
+          const x = pad.l + (acc / (maxVal || 1)) * pw, w = (val / (maxVal || 1)) * pw;
+          acc += val;
+          const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+          g.appendChild(sv("rect", { x: x.toFixed(1), y: (y0 + 9).toFixed(1), width: Math.max(1, w).toFixed(1), height: rowH - 18, rx: si === 0 || si === series.length - 1 ? 4 : 0, fill: col, "fill-opacity": 0.85 }));
+          const info = { title: `${cat} — ${s.label}`, meta: `${val}${b.unit || ""} (${Math.round((val / rowTotal) * 100)}% of ${rowTotal}${b.unit || ""})`, lead: `${s.label} contributes ${val}${b.unit || ""} inside ${cat}.` };
+          g.addEventListener("click", () => openItem(info));
+          g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+          svg.appendChild(g);
+        });
+        svg.appendChild(sv("text", { x: pad.l + (acc / (maxVal || 1)) * pw + 6, y: y0 + rowH / 2 + 4, class: "chart-lbl-bold" }, `${acc}${b.unit || ""}`));
+      } else {
+        const bh = Math.min(16, (rowH - 12) / series.length);
+        const startY = y0 + (rowH - bh * series.length) / 2;
+        series.forEach((s, si) => {
+          const val = s.values[ci] || 0, col = s.color || SERIES_COLORS[si % SERIES_COLORS.length];
+          const w = (val / (maxVal || 1)) * pw, by = startY + si * (bh + 2);
+          const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+          g.appendChild(sv("rect", { x: pad.l, y: by.toFixed(1), width: Math.max(1, w).toFixed(1), height: Math.max(6, bh - 1).toFixed(1), rx: 3, fill: col, "fill-opacity": 0.86 }));
+          g.appendChild(sv("text", { x: (pad.l + w + 6).toFixed(1), y: (by + bh - 2).toFixed(1), class: "chart-lbl" }, `${val}${b.unit || ""}`));
+          const info = { title: `${cat} — ${s.label}`, meta: `Value: ${val}${b.unit || ""}`, lead: `${s.label} measured ${val}${b.unit || ""} for ${cat}.` };
+          g.addEventListener("click", () => openItem(info));
+          g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+          svg.appendChild(g);
+        });
+      }
+    });
+    card.appendChild(svg);
+  } else {
+    const W = isFull ? 900 : 540, H = 295, pad = { l: 48, r: 18, t: 22, b: 42 };
+    const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Bar Chart" });
+    for (let i = 0; i <= 4; i++) {
+      const yv = (maxVal * i) / 4, gy = pad.t + ph - (yv / (maxVal || 1)) * ph;
+      svg.appendChild(sv("line", { x1: pad.l, y1: gy, x2: pad.l + pw, y2: gy, class: "chart-grid" }));
+      svg.appendChild(sv("text", { x: pad.l - 8, y: gy + 4, class: "chart-lbl", "text-anchor": "end" }, `${Math.round(yv)}${b.unit || ""}`));
+    }
+    svg.appendChild(sv("line", { x1: pad.l, y1: pad.t + ph, x2: pad.l + pw, y2: pad.t + ph, class: "chart-axis" }));
+    const gw = pw / cats.length;
+    cats.forEach((cat, ci) => {
+      const gx = pad.l + ci * gw;
+      svg.appendChild(sv("text", { x: (gx + gw / 2).toFixed(1), y: pad.t + ph + 18, class: "chart-lbl", "text-anchor": "middle" }, cat));
+      if (stacked) {
+        let acc = 0;
+        const bw = Math.min(46, gw * 0.62), bx = gx + (gw - bw) / 2;
+        series.forEach((s, si) => {
+          const val = s.values[ci] || 0, col = s.color || SERIES_COLORS[si % SERIES_COLORS.length];
+          const bh = (val / (maxVal || 1)) * ph, by = pad.t + ph - ((acc + val) / (maxVal || 1)) * ph;
+          acc += val;
+          const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+          g.appendChild(sv("rect", { x: bx.toFixed(1), y: by.toFixed(1), width: bw.toFixed(1), height: Math.max(1, bh).toFixed(1), rx: si === series.length - 1 ? 4 : 0, fill: col, "fill-opacity": 0.86 }));
+          const info = { title: `${cat} — ${s.label}`, meta: `${val}${b.unit || ""}`, lead: `${s.label} accounts for ${val}${b.unit || ""} inside ${cat}.` };
+          g.addEventListener("click", () => openItem(info));
+          g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+          svg.appendChild(g);
+        });
+        svg.appendChild(sv("text", { x: (gx + gw / 2).toFixed(1), y: (pad.t + ph - (acc / (maxVal || 1)) * ph - 6).toFixed(1), class: "chart-lbl-bold", "text-anchor": "middle" }, `${acc}${b.unit || ""}`));
+      } else {
+        const inner = gw * 0.72, bw = inner / series.length, startX = gx + (gw - inner) / 2;
+        series.forEach((s, si) => {
+          const val = s.values[ci] || 0, col = s.color || SERIES_COLORS[si % SERIES_COLORS.length];
+          const bh = (val / (maxVal || 1)) * ph, bx = startX + si * bw, by = pad.t + ph - bh;
+          const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+          g.appendChild(sv("rect", { x: (bx + 1.5).toFixed(1), y: by.toFixed(1), width: Math.max(4, bw - 3).toFixed(1), height: Math.max(1, bh).toFixed(1), rx: 3, fill: col, "fill-opacity": 0.86 }));
+          const info = { title: `${cat} — ${s.label}`, meta: `${val}${b.unit || ""}`, lead: `${s.label} scored ${val}${b.unit || ""} in ${cat}.` };
+          g.addEventListener("click", () => openItem(info));
+          g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+          svg.appendChild(g);
+        });
+      }
+    });
+    card.appendChild(svg);
+  }
+  wrap.appendChild(card);
+}
+
+// 10. Waterfall / Bridge Chart (Latency, Cost, or Delta Breakdown)
+function renderWaterfall(b, wrap) {
+  const card = makePanel(b.title || "Waterfall Bridge", b.subtitle);
+  const items = b.items || [];
+  if (!items.length) { wrap.appendChild(card); return; }
+
+  let cur = 0;
+  const rows = items.map((it, idx) => {
+    const kind = it.kind || (idx === 0 ? "start" : "delta");
+    if (kind === "start") {
+      cur = it.value;
+      return Object.assign({ y0: 0, y1: cur, display: `${cur}${b.unit || ""}`, kind }, it);
+    }
+    if (kind === "total") {
+      const v = it.value != null ? it.value : cur;
+      cur = v;
+      return Object.assign({ y0: 0, y1: v, display: `${v}${b.unit || ""}`, kind }, it);
+    }
+    const y0 = cur;
+    cur += it.value;
+    const sign = it.value >= 0 ? "+" : "";
+    return Object.assign({ y0, y1: cur, display: `${sign}${it.value}${b.unit || ""}`, kind }, it);
+  });
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 540, H = 300, pad = { l: 48, r: 18, t: 28, b: 48 };
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const allY = [0, ...rows.flatMap((r) => [r.y0, r.y1])];
+  const yMin = Math.min(...allY) * 1.05, yMax = Math.max(...allY) * 1.18;
+  const sy = (v) => pad.t + (1 - (v - yMin) / ((yMax - yMin) || 1)) * ph;
+  const bw = pw / rows.length;
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Waterfall Chart" });
+  for (let i = 0; i <= 4; i++) {
+    const gv = yMin + ((yMax - yMin) * i) / 4, gy = sy(gv);
+    svg.appendChild(sv("line", { x1: pad.l, y1: gy, x2: pad.l + pw, y2: gy, class: "chart-grid" }));
+    svg.appendChild(sv("text", { x: pad.l - 8, y: gy + 4, class: "chart-lbl", "text-anchor": "end" }, `${Math.round(gv)}${b.unit || ""}`));
+  }
+  svg.appendChild(sv("line", { x1: pad.l, y1: sy(0), x2: pad.l + pw, y2: sy(0), class: "chart-axis" }));
+
+  rows.forEach((r, i) => {
+    const x = pad.l + i * bw + bw * 0.16, w = bw * 0.68;
+    const top = Math.min(sy(r.y0), sy(r.y1)), bot = Math.max(sy(r.y0), sy(r.y1));
+    const h = Math.max(3, bot - top);
+    const good = b.lowerIsBetter ? r.value < 0 : r.value >= 0;
+    const col = (r.kind === "start" || r.kind === "total") ? "var(--accentA)" : (good ? "var(--ok)" : "var(--danger)");
+    if (i > 0) {
+      const prevX = pad.l + (i - 1) * bw + bw * 0.84;
+      const connY = sy(r.kind === "total" ? r.y1 : r.y0);
+      svg.appendChild(sv("line", { x1: prevX, y1: connY, x2: x, y2: connY, stroke: "var(--lineStrong)", "stroke-width": 1, "stroke-dasharray": "3 2" }));
+    }
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("rect", { x: x.toFixed(1), y: top.toFixed(1), width: w.toFixed(1), height: h.toFixed(1), rx: 4, fill: col, "fill-opacity": 0.85 }));
+    g.appendChild(sv("text", { x: (x + w / 2).toFixed(1), y: (top - 6).toFixed(1), class: "chart-lbl-bold", "text-anchor": "middle", fill: col }, r.display));
+    g.appendChild(sv("text", { x: (x + w / 2).toFixed(1), y: pad.t + ph + 18, class: "chart-lbl", "text-anchor": "middle" }, r.label.length > 13 ? r.label.slice(0, 12) + "…" : r.label));
+    const info = Object.assign({ title: r.label, meta: `${r.display} · Running total: ${r.y1}${b.unit || ""}` }, r);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 11. Dumbbell / Slope Delta Chart (Before -> After)
+function renderSlope(b, wrap) {
+  const card = makePanel(b.title || "Before vs After Delta", b.subtitle);
+  const items = b.items || [];
+  if (!items.length) { wrap.appendChild(card); return; }
+
+  const leg = el("div", "chart-legend");
+  [[b.beforeLabel || "Before", "var(--ctl)"], [b.afterLabel || "After (Improved)", "var(--ok)"], ["Regressed", "var(--danger)"]].forEach(([lbl, col]) => {
+    const ch = el("span", "leg-chip");
+    const d = el("i", "leg-dot"); d.style.background = col;
+    ch.appendChild(d); ch.appendChild(document.createTextNode(lbl));
+    leg.appendChild(ch);
+  });
+  card.appendChild(leg);
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const rowH = 38, W = isFull ? 900 : 540, pad = { l: 136, r: 78, t: 14, b: 28 }, H = pad.t + pad.b + items.length * rowH;
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const all = items.flatMap((it) => [it.before, it.after]);
+  const xMin = b.minZero ? 0 : Math.min(...all) * 0.85, xMax = Math.max(...all) * 1.1;
+  const sx = (v) => pad.l + ((v - xMin) / ((xMax - xMin) || 1)) * pw;
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Dumbbell Delta Chart" });
+  for (let i = 0; i <= 4; i++) {
+    const xv = xMin + ((xMax - xMin) * i) / 4, gx = sx(xv);
+    svg.appendChild(sv("line", { x1: gx, y1: pad.t, x2: gx, y2: pad.t + ph, class: "chart-grid" }));
+    svg.appendChild(sv("text", { x: gx, y: H - 6, class: "chart-lbl", "text-anchor": "middle" }, `${Math.round(xv)}${b.unit || ""}`));
+  }
+
+  items.forEach((it, idx) => {
+    const cy = pad.t + idx * rowH + rowH / 2;
+    const x1 = sx(it.before), x2 = sx(it.after);
+    const diff = it.after - it.before;
+    const pct = it.before ? Math.round((diff / it.before) * 100) : 0;
+    const improved = b.lowerIsBetter ? diff <= 0 : diff >= 0;
+    const col = improved ? "var(--ok)" : "var(--danger)";
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("text", { x: pad.l - 10, y: cy + 4, class: "chart-lbl-bold", "text-anchor": "end" }, it.label));
+    g.appendChild(sv("line", { x1: x1.toFixed(1), y1: cy, x2: x2.toFixed(1), y2: cy, stroke: col, "stroke-width": 3, "stroke-linecap": "round" }));
+    g.appendChild(sv("circle", { cx: x1.toFixed(1), cy, r: 5, fill: "var(--surface)", stroke: "var(--ctl)", "stroke-width": 2 }));
+    g.appendChild(sv("circle", { class: "pt-core", cx: x2.toFixed(1), cy, r: 5.5, fill: col, stroke: "var(--surface)", "stroke-width": 1.6 }));
+    g.appendChild(sv("text", { x: pad.l + pw + 10, y: cy + 4, class: "chart-lbl-bold", fill: col }, `${pct > 0 ? "+" : ""}${pct}%`));
+    const info = Object.assign({ title: it.label, meta: `${it.before}${b.unit || ""} → ${it.after}${b.unit || ""} (${pct > 0 ? "+" : ""}${pct}%)` }, it);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 12. Box & Whisker Plot (5-Number Summary + Outliers)
+function renderBoxplot(b, wrap) {
+  const card = makePanel(b.title || "Box & Whisker Distribution", b.subtitle);
+  const groups = b.groups || [];
+  if (!groups.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const rowH = 46, W = isFull ? 900 : 540, pad = { l: 118, r: 24, t: 18, b: 36 }, H = pad.t + pad.b + groups.length * rowH;
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const all = groups.flatMap((g) => [g.min, g.max, ...(g.outliers || [])]);
+  const xMin = b.minZero ? 0 : Math.min(...all) * 0.9, xMax = Math.max(...all) * 1.08;
+  const sx = (v) => pad.l + ((v - xMin) / ((xMax - xMin) || 1)) * pw;
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Box Plot" });
+  for (let i = 0; i <= 4; i++) {
+    const xv = xMin + ((xMax - xMin) * i) / 4, gx = sx(xv);
+    svg.appendChild(sv("line", { x1: gx, y1: pad.t, x2: gx, y2: pad.t + ph, class: "chart-grid" }));
+    svg.appendChild(sv("text", { x: gx, y: pad.t + ph + 16, class: "chart-lbl", "text-anchor": "middle" }, `${Math.round(xv)}${b.unit || ""}`));
+  }
+  if (b.xLabel) svg.appendChild(sv("text", { x: pad.l + pw / 2, y: H - 4, class: "chart-lbl", "text-anchor": "middle" }, b.xLabel));
+
+  groups.forEach((grp, idx) => {
+    const cy = pad.t + idx * rowH + rowH / 2;
+    const col = grp.color || SERIES_COLORS[idx % SERIES_COLORS.length];
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("text", { x: pad.l - 10, y: cy + 4, class: "chart-lbl-bold", "text-anchor": "end" }, grp.label));
+    g.appendChild(sv("line", { x1: sx(grp.min).toFixed(1), y1: cy, x2: sx(grp.max).toFixed(1), y2: cy, stroke: col, "stroke-width": 1.6 }));
+    g.appendChild(sv("line", { x1: sx(grp.min).toFixed(1), y1: cy - 7, x2: sx(grp.min).toFixed(1), y2: cy + 7, stroke: col, "stroke-width": 1.6 }));
+    g.appendChild(sv("line", { x1: sx(grp.max).toFixed(1), y1: cy - 7, x2: sx(grp.max).toFixed(1), y2: cy + 7, stroke: col, "stroke-width": 1.6 }));
+    const q1x = sx(grp.q1), q3x = sx(grp.q3);
+    g.appendChild(sv("rect", { x: q1x.toFixed(1), y: cy - 11, width: Math.max(4, q3x - q1x).toFixed(1), height: 22, rx: 4, fill: col, "fill-opacity": 0.22, stroke: col, "stroke-width": 1.8 }));
+    g.appendChild(sv("line", { x1: sx(grp.median).toFixed(1), y1: cy - 11, x2: sx(grp.median).toFixed(1), y2: cy + 11, stroke: col, "stroke-width": 2.6 }));
+    (grp.outliers || []).forEach((ov) => g.appendChild(sv("circle", { cx: sx(ov).toFixed(1), cy, r: 3.4, fill: "var(--surface)", stroke: "var(--danger)", "stroke-width": 1.7 })));
+    const info = Object.assign({ title: grp.label, meta: `min ${grp.min} · Q1 ${grp.q1} · med ${grp.median} · Q3 ${grp.q3} · max ${grp.max}${b.unit || ""}` }, grp);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 13. Empirical Histogram + Density Curve + Reference Line
+function renderHistogram(b, wrap) {
+  const card = makePanel(b.title || "Frequency Histogram", b.subtitle);
+  const bins = b.bins || [];
+  if (!bins.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 540, H = isFull ? 240 : 260, pad = { l: 48, r: 20, t: 24, b: 44 };
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const maxC = Math.max(...bins.map((x) => x.count)) * 1.15;
+  const total = bins.reduce((a, x) => a + x.count, 0) || 1;
+  const bw = pw / bins.length;
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Histogram" });
+  for (let i = 0; i <= 4; i++) {
+    const yv = (maxC * i) / 4, gy = pad.t + ph - (yv / (maxC || 1)) * ph;
+    svg.appendChild(sv("line", { x1: pad.l, y1: gy, x2: pad.l + pw, y2: gy, class: "chart-grid" }));
+    svg.appendChild(sv("text", { x: pad.l - 8, y: gy + 4, class: "chart-lbl", "text-anchor": "end" }, Math.round(yv)));
+  }
+  svg.appendChild(sv("line", { x1: pad.l, y1: pad.t + ph, x2: pad.l + pw, y2: pad.t + ph, class: "chart-axis" }));
+  if (b.xLabel) svg.appendChild(sv("text", { x: pad.l + pw / 2, y: H - 6, class: "chart-lbl", "text-anchor": "middle" }, b.xLabel));
+
+  const midPts = [];
+  bins.forEach((bn, i) => {
+    const bh = (bn.count / (maxC || 1)) * ph;
+    const x = pad.l + i * bw + 1.5, w = Math.max(4, bw - 3), y = pad.t + ph - bh;
+    const col = bn.highlight ? "var(--danger)" : (bn.color || "var(--accentA)");
+    midPts.push([x + w / 2, y]);
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("rect", { x: x.toFixed(1), y: y.toFixed(1), width: w.toFixed(1), height: bh.toFixed(1), rx: 3, fill: col, "fill-opacity": bn.highlight ? 0.78 : 0.42, stroke: col, "stroke-width": 1 }));
+    if (bins.length <= 12 || i % 2 === 0) {
+      svg.appendChild(sv("text", { x: (x + w / 2).toFixed(1), y: pad.t + ph + 15, class: "chart-lbl", "text-anchor": "middle" }, bn.label));
+    }
+    const pct = Math.round((bn.count / total) * 100);
+    const info = Object.assign({ title: `Bucket ${bn.label}`, meta: `Count: ${bn.count} (${pct}% of ${total})` }, bn);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+
+  if (b.showCurve !== false && midPts.length >= 3) {
+    let d = `M${midPts[0][0].toFixed(1)} ${midPts[0][1].toFixed(1)}`;
+    for (let i = 1; i < midPts.length - 1; i++) {
+      const mx = (midPts[i][0] + midPts[i + 1][0]) / 2, my = (midPts[i][1] + midPts[i + 1][1]) / 2;
+      d += ` Q${midPts[i][0].toFixed(1)} ${midPts[i][1].toFixed(1)}, ${mx.toFixed(1)} ${my.toFixed(1)}`;
+    }
+    const last = midPts[midPts.length - 1];
+    d += ` L${last[0].toFixed(1)} ${last[1].toFixed(1)}`;
+    svg.appendChild(sv("path", { d, fill: "none", stroke: "var(--accentB)", "stroke-width": 2 }));
+  }
+  if (b.refIndex != null) {
+    const rx = pad.l + (b.refIndex / bins.length) * pw;
+    svg.appendChild(sv("line", { x1: rx, y1: pad.t, x2: rx, y2: pad.t + ph, stroke: "var(--danger)", "stroke-width": 1.6, "stroke-dasharray": "5 3" }));
+    svg.appendChild(sv("text", { x: rx - 5, y: pad.t + 11, class: "chart-lbl-bold", "text-anchor": "end", fill: "var(--danger)" }, b.refLabel || "Limit"));
+  }
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 14. Donut Composition Ring + Interactive Legend
+function renderDonut(b, wrap) {
+  const card = makePanel(b.title || "Composition Breakdown", b.subtitle);
+  const items = b.items || [];
+  if (!items.length) { wrap.appendChild(card); return; }
+
+  const total = items.reduce((a, x) => a + Number(x.value || 0), 0) || 1;
+  const dw = el("div", "donut-wrap");
+  const sbox = el("div", "donut-svg-box");
+  const W = 200, H = 200, cx = 100, cy = 100, R = 82, rIn = 52;
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Donut Chart" });
+
+  let ang = -Math.PI / 2;
+  const leg = el("div", "donut-leg");
+  items.forEach((it, idx) => {
+    const share = (it.value || 0) / total;
+    const sweep = share * Math.PI * 2;
+    const col = it.color || SERIES_COLORS[idx % SERIES_COLORS.length];
+    const x1 = cx + R * Math.cos(ang), y1 = cy + R * Math.sin(ang);
+    const x2 = cx + R * Math.cos(ang + sweep), y2 = cy + R * Math.sin(ang + sweep);
+    const ix1 = cx + rIn * Math.cos(ang + sweep), iy1 = cy + rIn * Math.sin(ang + sweep);
+    const ix2 = cx + rIn * Math.cos(ang), iy2 = cy + rIn * Math.sin(ang);
+    const large = sweep > Math.PI ? 1 : 0;
+    const d = `M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${ix1.toFixed(1)} ${iy1.toFixed(1)} A${rIn} ${rIn} 0 ${large} 0 ${ix2.toFixed(1)} ${iy2.toFixed(1)} Z`;
+    const pct = Math.round(share * 100);
+    const fmtVal = (b.unit === "$" || b.unit === "€" || b.unit === "£") ? `${b.unit}${Number(it.value).toLocaleString("en-US")}` : `${Number(it.value).toLocaleString("en-US")}${b.unit || ""}`;
+    const info = Object.assign({ title: it.label, meta: `${fmtVal} (${pct}%)` }, it);
+
+    const p = sv("path", { d, fill: col, stroke: "var(--surface)", "stroke-width": 2, class: "chart-pt", tabindex: 0, role: "button" });
+    p.addEventListener("click", () => openItem(info));
+    p.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(p);
+    ang += sweep;
+
+    const row = el("button", "donut-row"); row.type = "button";
+    const left = el("span", "donut-row-l");
+    const dot = el("i", "leg-dot"); dot.style.background = col;
+    left.appendChild(dot); left.appendChild(document.createTextNode(it.label));
+    row.appendChild(left);
+    row.appendChild(el("span", "donut-row-r", `${fmtVal} · ${pct}%`));
+    row.addEventListener("click", () => openItem(info));
+    leg.appendChild(row);
+  });
+
+  svg.appendChild(sv("text", { x: cx, y: cy - 2, class: "chart-lbl-bold", "text-anchor": "middle", style: "font-size:20px" }, b.centerValue || String(total)));
+  if (b.centerLabel) svg.appendChild(sv("text", { x: cx, y: cy + 16, class: "chart-lbl", "text-anchor": "middle" }, b.centerLabel));
+  sbox.appendChild(svg);
+  dw.appendChild(sbox);
+  dw.appendChild(leg);
+  card.appendChild(dw);
+  wrap.appendChild(card);
+}
+
+// 15. Proportional Treemap (Recursive Balanced Split)
+function renderTreemap(b, wrap) {
+  const card = makePanel(b.title || "Proportional Treemap", b.subtitle);
+  const items = [...(b.items || [])].sort((a, c) => c.value - a.value);
+  if (!items.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 560, H = isFull ? 250 : 220, total = items.reduce((a, x) => a + x.value, 0) || 1;
+  const gMap = {};
+  const rects = [];
+  function layout(list, x, y, w, h) {
+    if (!list.length) return;
+    if (list.length === 1) { rects.push(Object.assign({ x, y, w, h }, list[0])); return; }
+    const sum = list.reduce((a, it) => a + it.value, 0) || 1;
+    let acc = 0, split = 1;
+    for (let i = 0; i < list.length - 1; i++) {
+      acc += list[i].value;
+      split = i + 1;
+      if (acc >= sum * 0.45) break;
+    }
+    const left = list.slice(0, split), right = list.slice(split);
+    const ratio = left.reduce((a, it) => a + it.value, 0) / sum;
+    if (w >= h) {
+      layout(left, x, y, w * ratio, h);
+      layout(right, x + w * ratio, y, w * (1 - ratio), h);
+    } else {
+      layout(left, x, y, w, h * ratio);
+      layout(right, x, y + h * ratio, w, h * (1 - ratio));
+    }
+  }
+  layout(items, 2, 2, W - 4, H - 4);
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Treemap" });
+  rects.forEach((r) => {
+    const col = r.color || colorFor(r.group || r.label, gMap);
+    const pct = Math.round((r.value / total) * 100);
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("rect", { x: (r.x + 2).toFixed(1), y: (r.y + 2).toFixed(1), width: Math.max(4, r.w - 4).toFixed(1), height: Math.max(4, r.h - 4).toFixed(1), rx: 6, fill: col, "fill-opacity": 0.22, stroke: col, "stroke-width": 1.4 }));
+    if (r.w > 64 && r.h > 32) {
+      const maxCh = Math.max(6, Math.floor((r.w - 16) / 6.8));
+      const lbl = r.label.length > maxCh ? r.label.slice(0, maxCh - 1) + "…" : r.label;
+      g.appendChild(sv("text", { x: (r.x + 10).toFixed(1), y: (r.y + 20).toFixed(1), class: "chart-lbl-bold" }, lbl));
+      if (r.h > 44) g.appendChild(sv("text", { x: (r.x + 10).toFixed(1), y: (r.y + 35).toFixed(1), class: "chart-lbl" }, `${r.value}${b.unit || ""} · ${pct}%`));
+    }
+    const info = Object.assign({ title: r.label, meta: `${r.value}${b.unit || ""} (${pct}%)${r.group ? " · " + r.group : ""}` }, r);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 16. Conversion / Drop-Off Funnel
+function renderFunnel(b, wrap) {
+  const card = makePanel(b.title || "Conversion Funnel", b.subtitle);
+  const stages = b.stages || [];
+  if (!stages.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const topV = stages[0].value || 1;
+  const rowH = 50, W = isFull ? 820 : 540, pad = { l: 132, r: 96, t: 14, b: 14 }, H = pad.t + pad.b + stages.length * rowH;
+  const pw = W - pad.l - pad.r, cx = pad.l + pw / 2;
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Conversion Funnel" });
+
+  stages.forEach((st, i) => {
+    const y0 = pad.t + i * rowH + 3, y1 = y0 + rowH - 8;
+    const minW = 104;
+    const wTop = minW + (st.value / topV) * (pw - minW);
+    const nextV = i < stages.length - 1 ? stages[i + 1].value : st.value * 0.88;
+    const wBot = minW + (nextV / topV) * (pw - minW);
+    const col = st.color || SERIES_COLORS[i % SERIES_COLORS.length];
+    const pctTop = Math.round((st.value / topV) * 100);
+    const stepPct = i > 0 ? Math.round((st.value / (stages[i - 1].value || 1)) * 100) : 100;
+    const poly = `${(cx - wTop / 2).toFixed(1)},${y0} ${(cx + wTop / 2).toFixed(1)},${y0} ${(cx + wBot / 2).toFixed(1)},${y1} ${(cx - wBot / 2).toFixed(1)},${y1}`;
+
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("text", { x: pad.l - 10, y: (y0 + y1) / 2 + 4, class: "chart-lbl-bold", "text-anchor": "end" }, st.label));
+    g.appendChild(sv("polygon", { points: poly, fill: col, "fill-opacity": 0.24, stroke: col, "stroke-width": 1.6 }));
+    g.appendChild(sv("text", { x: cx, y: (y0 + y1) / 2 + 4, class: "chart-lbl-bold", "text-anchor": "middle" }, `${st.value.toLocaleString("en-US")} (${pctTop}%)`));
+    if (i > 0) {
+      g.appendChild(sv("text", { x: pad.l + pw + 12, y: (y0 + y1) / 2 + 4, class: "chart-lbl", fill: stepPct < 55 ? "var(--danger)" : "var(--muted)" }, `↘ ${stepPct}% step`));
+    }
+    const info = Object.assign({ title: st.label, meta: `${st.value.toLocaleString()} · ${pctTop}% of top${i > 0 ? ` · ${stepPct}% from prev` : ""}` }, st);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 17. Weighted Sankey / Alluvial Flow Diagram
+function renderSankey(b, wrap) {
+  const card = makePanel(b.title || "Weighted Flow (Sankey)", b.subtitle);
+  const nodes = b.nodes || [], links = b.links || [];
+  if (!nodes.length || !links.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const W = isFull ? 900 : 560, H = 290, pad = { l: 12, r: 12, t: 24, b: 18 }, nodeW = 14, gap = 16;
+  const byId = {};
+  nodes.forEach((n, i) => { byId[n.id] = Object.assign({ inV: 0, outV: 0, inOff: 0, outOff: 0, col: n.col || 0, color: n.color || SERIES_COLORS[i % SERIES_COLORS.length] }, n); });
+  links.forEach((lk) => {
+    if (byId[lk.source]) byId[lk.source].outV += lk.value;
+    if (byId[lk.target]) byId[lk.target].inV += lk.value;
+  });
+
+  const cols = {};
+  Object.values(byId).forEach((n) => {
+    n.val = Math.max(n.inV, n.outV, 1);
+    (cols[n.col] = cols[n.col] || []).push(n);
+  });
+  const colKeys = Object.keys(cols).map(Number).sort((a, c) => a - c);
+  const maxColSum = Math.max(...colKeys.map((k) => cols[k].reduce((a, n) => a + n.val, 0)));
+  const maxNodes = Math.max(...colKeys.map((k) => cols[k].length));
+  const scale = (H - pad.t - pad.b - gap * Math.max(0, maxNodes - 1)) / (maxColSum || 1);
+
+  colKeys.forEach((ck, ci) => {
+    const list = cols[ck];
+    const colX = colKeys.length === 1 ? W / 2 : pad.l + (ci / (colKeys.length - 1)) * (W - pad.l - pad.r - nodeW);
+    const totalH = list.reduce((a, n) => a + n.val * scale, 0) + gap * Math.max(0, list.length - 1);
+    let y = pad.t + Math.max(0, (H - pad.t - pad.b - totalH) / 2);
+    list.forEach((n) => {
+      n.x = colX; n.y = y; n.h = Math.max(8, n.val * scale);
+      y += n.h + gap;
+    });
+  });
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Sankey Diagram" });
+  links.forEach((lk) => {
+    const s = byId[lk.source], t = byId[lk.target];
+    if (!s || !t) return;
+    const lh = Math.max(2, lk.value * scale);
+    const y0 = s.y + s.outOff, y1 = t.y + t.inOff;
+    s.outOff += lh; t.inOff += lh;
+    const x0 = s.x + nodeW, x1 = t.x, mx = (x0 + x1) / 2;
+    const d = `M${x0.toFixed(1)} ${y0.toFixed(1)} C${mx.toFixed(1)} ${y0.toFixed(1)}, ${mx.toFixed(1)} ${y1.toFixed(1)}, ${x1.toFixed(1)} ${y1.toFixed(1)} L${x1.toFixed(1)} ${(y1 + lh).toFixed(1)} C${mx.toFixed(1)} ${(y1 + lh).toFixed(1)}, ${mx.toFixed(1)} ${(y0 + lh).toFixed(1)}, ${x0.toFixed(1)} ${(y0 + lh).toFixed(1)} Z`;
+    const p = sv("path", { d, fill: s.color, "fill-opacity": 0.30, class: "sankey-link", tabindex: 0, role: "button" });
+    const info = Object.assign({ title: `${s.label} → ${t.label}`, meta: `Flow: ${lk.value}${b.unit ? " " + b.unit : ""}` }, lk);
+    p.addEventListener("click", () => openItem(info));
+    p.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(p);
+  });
+
+  const lastCol = colKeys[colKeys.length - 1];
+  Object.values(byId).forEach((n) => {
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("rect", { x: n.x.toFixed(1), y: n.y.toFixed(1), width: nodeW, height: n.h.toFixed(1), rx: 3, fill: n.color }));
+    const isLast = n.col === lastCol && colKeys.length > 1;
+    const isMid = n.col !== colKeys[0] && !isLast;
+    const lx = isLast ? n.x - 6 : (isMid ? n.x + nodeW / 2 : n.x + nodeW + 6);
+    const ly = isMid ? n.y - 5 : n.y + n.h / 2 + 4;
+    const anchor = isLast ? "end" : (isMid ? "middle" : "start");
+    g.appendChild(sv("text", { x: lx.toFixed(1), y: ly.toFixed(1), class: "chart-lbl-bold", "text-anchor": anchor }, `${n.label} (${n.val})`));
+    const info = Object.assign({ title: n.label, meta: `Total volume: ${n.val}${b.unit ? " " + b.unit : ""}` }, n);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 18. Timeline / Gantt Roadmap
+function renderTimeline(b, wrap) {
+  const card = makePanel(b.title || "Execution Timeline", b.subtitle);
+  const tasks = b.tasks || [], axis = b.axis || [];
+  if (!tasks.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const maxT = axis.length || Math.max(...tasks.map((t) => t.end || 1));
+  const rowH = 40, W = isFull ? 900 : 560, pad = { l: 146, r: 58, t: 28, b: 14 }, H = pad.t + pad.b + tasks.length * rowH;
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const sx = (v) => pad.l + (v / (maxT || 1)) * pw;
+
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Gantt Timeline" });
+  const cols = axis.length || Math.ceil(maxT);
+  for (let i = 0; i <= cols; i++) {
+    const gx = sx(i);
+    svg.appendChild(sv("line", { x1: gx, y1: pad.t, x2: gx, y2: pad.t + ph, class: "chart-grid" }));
+    if (i < cols && axis[i]) svg.appendChild(sv("text", { x: sx(i + 0.5), y: pad.t - 10, class: "chart-lbl", "text-anchor": "middle" }, axis[i]));
+  }
+
+  tasks.forEach((t, idx) => {
+    const cy = pad.t + idx * rowH + rowH / 2;
+    const x0 = sx(t.start || 0), x1 = sx(t.end || 1), w = Math.max(8, x1 - x0);
+    const col = t.color || colorFor(t.tone || "accentA");
+    const prog = Math.max(0, Math.min(1, t.progress != null ? t.progress : 1));
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("text", { x: pad.l - 10, y: cy + 4, class: "chart-lbl-bold", "text-anchor": "end" }, t.label));
+    g.appendChild(sv("rect", { x: x0.toFixed(1), y: cy - 9, width: w.toFixed(1), height: 18, rx: 5, fill: col, "fill-opacity": 0.22, stroke: col, "stroke-width": 1.4 }));
+    if (prog > 0) g.appendChild(sv("rect", { x: x0.toFixed(1), y: cy - 9, width: (w * prog).toFixed(1), height: 18, rx: 5, fill: col, "fill-opacity": 0.78 }));
+    g.appendChild(sv("text", { x: (x0 + w + 6).toFixed(1), y: cy + 4, class: "chart-lbl" }, `${Math.round(prog * 100)}%`));
+    const info = Object.assign({ title: t.label, meta: `${t.group ? t.group + " · " : ""}${Math.round(prog * 100)}% complete` }, t);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
+
+  if (b.today != null) {
+    const tx = sx(b.today);
+    svg.appendChild(sv("line", { x1: tx, y1: pad.t - 4, x2: tx, y2: pad.t + ph, stroke: "var(--danger)", "stroke-width": 1.6, "stroke-dasharray": "4 3" }));
+    svg.appendChild(sv("text", { x: tx + 4, y: pad.t + 10, class: "chart-lbl-bold", fill: "var(--danger)" }, b.todayLabel || "Now"));
+  }
+  card.appendChild(svg);
+  wrap.appendChild(card);
+}
+
+// 19. Bullet / SLO Target Gauge (Stephen Few Style)
+function renderBullet(b, wrap) {
+  const card = makePanel(b.title || "SLO Bullet Gauges", b.subtitle);
+  const items = b.items || [];
+  if (!items.length) { wrap.appendChild(card); return; }
+
+  const isFull = !wrap.classList.contains("block-grid");
+  const rowH = 48, W = isFull ? 900 : 540, pad = { l: 132, r: 84, t: 14, b: 14 }, H = pad.t + pad.b + items.length * rowH;
+  const pw = W - pad.l - pad.r;
+  const svg = sv("svg", { class: "chart-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.title || "Bullet Chart" });
+
+  items.forEach((it, idx) => {
+    const cy = pad.t + idx * rowH + rowH / 2;
+    const mx = it.max || Math.max(it.value, it.target || 0, ...(it.ranges || [100]));
+    const sx = (v) => pad.l + (Math.max(0, Math.min(mx, v)) / (mx || 1)) * pw;
+    const ranges = (it.ranges || [mx * 0.6, mx * 0.85, mx]).slice().sort((a, c) => c - a);
+    const bandOp = [0.09, 0.16, 0.24];
+    const g = sv("g", { class: "chart-pt", tabindex: 0, role: "button" });
+    g.appendChild(sv("text", { x: pad.l - 10, y: cy + 4, class: "chart-lbl-bold", "text-anchor": "end" }, it.label));
+    ranges.forEach((rv, ri) => {
+      g.appendChild(sv("rect", { x: pad.l, y: cy - 11, width: Math.max(2, sx(rv) - pad.l).toFixed(1), height: 22, rx: 4, fill: "var(--ctl)", "fill-opacity": bandOp[ri] || 0.12 }));
+    });
+    const met = it.lowerIsBetter ? (it.value <= (it.target || mx)) : (it.value >= (it.target || 0));
+    const col = it.color || (met ? "var(--ok)" : "var(--warn)");
+    g.appendChild(sv("rect", { x: pad.l, y: cy - 5, width: Math.max(3, sx(it.value) - pad.l).toFixed(1), height: 10, rx: 3, fill: col }));
+    if (it.target != null) {
+      const tx = sx(it.target);
+      g.appendChild(sv("line", { x1: tx.toFixed(1), y1: cy - 12, x2: tx.toFixed(1), y2: cy + 12, stroke: "var(--ink)", "stroke-width": 2.4 }));
+    }
+    g.appendChild(sv("text", { x: pad.l + pw + 10, y: cy + 4, class: "chart-lbl-bold", fill: col }, `${it.value}${it.unit || ""}`));
+    const info = Object.assign({ title: it.label, meta: `Actual: ${it.value}${it.unit || ""}${it.target != null ? ` · Target: ${it.target}${it.unit || ""}` : ""}` }, it);
+    g.addEventListener("click", () => openItem(info));
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openItem(info); } });
+    svg.appendChild(g);
+  });
   card.appendChild(svg);
   wrap.appendChild(card);
 }
@@ -1072,6 +1871,19 @@ function renderBlock(b, container) {
   else if (b.type === "radar") renderRadar(b, container);
   else if (b.type === "heatmap") renderHeatmap(b, container);
   else if (b.type === "pareto") renderPareto(b, container);
+  else if (b.type === "kpi") renderKpi(b, container);
+  else if (b.type === "line") renderLine(b, container);
+  else if (b.type === "bar") renderBar(b, container);
+  else if (b.type === "waterfall") renderWaterfall(b, container);
+  else if (b.type === "slope") renderSlope(b, container);
+  else if (b.type === "boxplot") renderBoxplot(b, container);
+  else if (b.type === "histogram") renderHistogram(b, container);
+  else if (b.type === "donut") renderDonut(b, container);
+  else if (b.type === "treemap") renderTreemap(b, container);
+  else if (b.type === "funnel") renderFunnel(b, container);
+  else if (b.type === "sankey") renderSankey(b, container);
+  else if (b.type === "timeline") renderTimeline(b, container);
+  else if (b.type === "bullet") renderBullet(b, container);
   else if (b.type === "table") renderTable(b, container);
   else if (b.type === "walkthrough") renderWalkthrough(b, container);
   else if (b.type === "checks") renderChecks(b, container);

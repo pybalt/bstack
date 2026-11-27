@@ -94,7 +94,17 @@ def validate(html_path: Path) -> dict:
             if b.get("type") == "grid":
                 walk_blocks(b.get("blocks", []))
                 continue
-            check_items(b.get("nodes", []) + b.get("options", []) + b.get("cards", []) + b.get("points", []))
+            check_items(
+                b.get("nodes", [])
+                + b.get("options", [])
+                + b.get("cards", [])
+                + b.get("points", [])
+                + b.get("items", [])
+                + b.get("groups", [])
+                + b.get("stages", [])
+                + b.get("tasks", [])
+                + b.get("bins", [])
+            )
             for z in b.get("zones", []):
                 check_items(z.get("nodes", []))
             for qd in b.get("quadrants", []):

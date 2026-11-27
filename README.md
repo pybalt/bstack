@@ -23,7 +23,7 @@ The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages
 | 5 | **Delegate** (`delegate`) | Context-safe multi-agent orchestration, worktree isolation, and cross-family model routing. | `delegate` |
 | 6 | **Debug** (`debug`) | Systematic 4-phase root-cause investigation with tight feedback loops and automated `git bisect`. | `systematic-debugging` |
 | 7 | **Review & QA** (`review`) | Receipt-Driven Development (RDD): cross-model adversarial review, live behavioral QA, and fingerprint-bound receipts. | `adversarial-review`, `qa-verify` |
-| 8 | **Cross-Cutting** (`cross-cutting`) | Composable interactive visual briefs (6 pure-SVG engineering charts, zero CDN, desktop + mobile) and multi-family evolutionary crossover optimization. | `visual-brief`, `evolve` |
+| 8 | **Cross-Cutting** (`cross-cutting`) | Composable interactive visual briefs (19 pure-SVG engineering charts, zero CDN, desktop + mobile) and multi-family evolutionary crossover optimization. | `visual-brief`, `evolve` |
 
 ## Repository Layout
 
@@ -74,7 +74,7 @@ Useful flags: `--force` to overwrite existing skills, `--no-adapter` to install 
 # Verify all 12 declared skills resolve cleanly
 python build.py --check
 
-# Build dist/bstack-0.5.0.zip with MANIFEST.json (sha256 per file)
+# Build dist/bstack-0.6.0.zip with MANIFEST.json (sha256 per file)
 python build.py
 ```
 

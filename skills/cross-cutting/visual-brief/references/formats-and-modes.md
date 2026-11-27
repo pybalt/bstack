@@ -16,21 +16,32 @@ Pick **one** primary format per artifact based on what the user needs to underst
 
 `assets/brief-shell.html` is a **Block Composer**, not a rigid template. Each tab in `BRIEF.views` takes `blocks: [...]` (or a single block object for backward compatibility) and can place any two blocks side-by-side using `{"type": "grid", "cols": 2, "blocks": [ ... ]}` (collapses to 1 column below `920px`).
 
-All 6 quantitative charts render as **pure inline SVG** with **zero external CDN scripts** — guaranteeing instant load, Retina crispness, Light/Dark theme token sync, and strict CSP compliance inside IDE artifact panes.
+All **19 quantitative charts** render as **pure inline SVG** with **zero external CDN scripts** — guaranteeing instant load, Retina crispness, Light/Dark theme token sync, keyboard + inspector interactivity, and strict CSP compliance inside IDE artifact panes.
 
-| Block `type` | Visual Output | Best Used For | Key Data Fields |
+| Category | Block `type` | Visual Output | Key Data Fields |
 | :--- | :--- | :--- | :--- |
-| `quadrant-plot` | Continuous 2×2 X vs Y scatter over a 10×10 desirability intensity field (Green → Amber → Neutral → Hatched Gray) | Quantitative Impact vs Effort, Risk vs Frequency, Priority scoring | `xLabel`, `yLabel`, `xLowGood`, `points: [{id, title, x, y, size, lead}]` |
-| `scatter` | Multi-series X vs Y scatter plot with optional dashed **Pareto frontier** | `evolve` multi-family generations, Cost vs Quality, Latency vs Accuracy | `xLabel`, `yLabel`, `points: [{id, title, x, y, series, pareto, winner, dominated, lead}]` |
-| `bell` | Gaussian normal distribution curves (Before vs After overlay) with `p50`/`p95`/`p99` markers and red SLO line | Latency distributions, SLO headroom, A/B or benchmark variance | `unit`, `xLabel`, `slo`, `minZero`, `curves: [{label, mean, sd, color, dashed}]` |
-| `radar` | Multi-axis spider/radar polygon comparison | Multi-criteria `grill` Pugh comparisons across 5–6 dimensions | `max`, `axes: [...]`, `series: [{label, values: [...], color}]` |
-| `heatmap` | Clickable X × Y color-intensity grid (`risk` red, `win` green, `info` blue) | FMEA failure modes, service × error matrices, latency by region | `scale`, `cols: [...]`, `rows: [{label, values: [...], notes: [...]}]` |
-| `pareto` | Sorted bars (vital 80% highlighted) + cumulative percentage curve + 80% guide | Root-cause incident triage, bug/error category concentration | `items: [{label, value, lead}]` |
-| `grid` | Responsive 2-column (or N-column) layout container | Pairing two complementary charts or chart + table | `cols`, `blocks: [...]` |
-| `profile` / `pugh` / `matrix2x2` | 4-axis Problem Profile strip, Pugh cards with score bars, discrete 4-quadrant desirability board | `grill` trade-off framing and qualitative prioritization | `items` / `options` / `quadrants` |
-| `flow` / `walkthrough` / `checks` / `table` / `callout` / `slides` | Swimlane diagrams, Before/After diffs, Verification semaphores, numeric tables, breakpoint callouts, slide decks | Architecture maps, PR reviews, RDD receipts, executive pitches | `zones` / `before`+`after` / `items` / `columns`+`rows` / `text` / `slides` |
+| **Strategy / 2D** | `quadrant-plot` | Continuous 2×2 X vs Y over a 10×10 desirability field (Green → Amber → Neutral → Hatched Gray) | `xLabel`, `yLabel`, `xLowGood`, `points: [{id, title, x, y, size, lead}]` |
+| **Strategy / 2D** | `scatter` | Multi-series X vs Y scatter plot + optional dashed **Pareto frontier** | `xLabel`, `yLabel`, `points: [{id, title, x, y, series, pareto, winner, dominated}]` |
+| **Strategy / 2D** | `radar` | Multi-axis spider/radar polygon comparison | `max`, `axes: [...]`, `series: [{label, values: [...], color}]` |
+| **Strategy / 2D** | `heatmap` | Clickable X × Y color-intensity grid (`risk`, `win`, `info`, or `diverging` `-1..+1` correlation) | `scale`, `min`, `max`, `cols: [...]`, `rows: [{label, values: [...], notes}]` |
+| **Distributions** | `bell` | Gaussian normal curves (Before vs After) with `p50`/`p95`/`p99` + red SLO threshold | `unit`, `xLabel`, `slo`, `minZero`, `curves: [{label, mean, sd, color, dashed}]` |
+| **Distributions** | `boxplot` | Horizontal 5-number Box & Whisker plot (`min`, `Q1`, `median`, `Q3`, `max`) + outlier dots | `unit`, `xLabel`, `groups: [{label, min, q1, median, q3, max, outliers}]` |
+| **Distributions** | `histogram` | Binned frequency bars + smooth density envelope + optional vertical reference line | `xLabel`, `showCurve`, `refIndex`, `refLabel`, `bins: [{label, count, highlight}]` |
+| **Trends / Deltas** | `kpi` | Executive metric cards (2–4 across) with tabular headline, delta pill, and inline SVG sparkline | `items: [{id, label, value, delta, deltaTone, spark: [...], lead}]` |
+| **Trends / Deltas** | `line` | Multi-series line/area chart + optional shaded confidence band (`low`/`high`) + SLO threshold | `labels: [...]`, `area`, `band`, `threshold`, `series: [{label, values, dashed}]` |
+| **Trends / Deltas** | `slope` | Before → After dumbbell delta chart color-coded green (improved) vs red (regressed) | `beforeLabel`, `afterLabel`, `unit`, `lowerIsBetter`, `items: [{label, before, after}]` |
+| **Trends / Deltas** | `waterfall` | Additive bridge chart (`start` → `delta` steps → `total`) with dotted connectors | `unit`, `lowerIsBetter`, `items: [{label, value, kind: "start"\|"delta"\|"total"}]` |
+| **Composition** | `pareto` | Sorted bars (vital 80% highlighted) + cumulative curve + 80% guide | `items: [{label, value, lead}]` |
+| **Composition** | `bar` | Vertical or horizontal, grouped or stacked bar comparison | `orientation`, `stacked`, `unit`, `categories: [...]`, `series: [{label, values}]` |
+| **Composition** | `donut` | Composition ring with centered KPI total + interactive percentage legend | `unit`, `centerValue`, `centerLabel`, `items: [{label, value, color}]` |
+| **Composition** | `treemap` | Proportional balanced-split rectangles colored by group with labels & share | `unit`, `items: [{label, value, group, color, lead}]` |
+| **Flow / Funnel** | `funnel` | Centered tapered conversion funnel with top-% and step-to-step drop-off badges | `stages: [{label, value, color, lead}]` |
+| **Flow / Funnel** | `sankey` | Multi-column weighted cubic Bézier alluvial flow diagram | `unit`, `nodes: [{id, label, col, color}]`, `links: [{source, target, value}]` |
+| **Plan / Health** | `timeline` | Horizontal Gantt / roadmap / postmortem bars with progress fill and `today` line | `axis: [...]`, `today`, `todayLabel`, `tasks: [{label, start, end, progress, tone}]` |
+| **Plan / Health** | `bullet` | Compact Stephen Few SLO/KPI bullet gauges with qualitative bands + target tick | `items: [{label, value, target, max, ranges, unit, lowerIsBetter}]` |
+| **Structure** | `grid` / `profile` / `flow` / `pugh` / `matrix2x2` / `table` / `walkthrough` / `checks` / `callout` / `slides` | Composable 2-col layout, problem profile, swimlanes, Pugh cards, discrete 2×2, numeric tables, Before/After diffs, RDD receipts, callouts, slide decks | See legacy/structural schemas above |
 
-**Composition Discipline:** Cap each tab at **2–3 cohesive blocks** (e.g., `profile` + 2-column `grid` of charts + 1 `callout` or `table`). Never pile 6 charts into one scrolling wall.
+**Composition Discipline:** Cap each tab at **2–3 cohesive blocks** (e.g., `kpi` + 2-column `grid` of charts + 1 `callout` or `table`). Never pile 6 charts into one scrolling wall.
 
 ## 3. Process vs System Classification (For Diagrams)
 
