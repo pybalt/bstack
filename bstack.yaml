@@ -1,16 +1,16 @@
 name: bstack
-version: 0.1.0
+version: 0.2.0
 author: Leonel Baltazar Bravo
 description: >
   Personal agentic development skill stack organized by workflow stage:
-  environment, onboarding, planning, building, delegation, debugging, review,
-  and cross-cutting tools.
+  environment, onboarding, planning, building (ODD), delegation, debugging,
+  review & QA (RDD), and cross-cutting tools.
 license: MIT
 
 layers:
   - id: environment
     title: Environment
-    blurb: "DevEX, Organizational Knowledge MCP, deployments, private VMs, terminal proxies, versioning, and harnesses."
+    blurb: "DevEX, Organizational Knowledge MCP, persistent memory (Engram), deployments, private VMs, terminal proxies, versioning, and harnesses."
     skills:
       - environment
 
@@ -29,14 +29,16 @@ layers:
 
   - id: build
     title: Build
-    blurb: ""
+    blurb: "Organic-Driven Development (ODD) execution with out-of-the-box observability/security and unified UI/UX."
     skills:
+      - odd-build
       - uiux
 
   - id: delegate
     title: Delegate
-    blurb: ""
-    skills: []
+    blurb: "Context-safe multi-agent orchestration, worktree isolation, and cross-family model routing."
+    skills:
+      - delegate
 
   - id: debug
     title: Debug
@@ -45,9 +47,11 @@ layers:
       - systematic-debugging
 
   - id: review
-    title: Review
-    blurb: ""
-    skills: []
+    title: Review & QA
+    blurb: "Receipt-Driven Development (RDD): cross-model adversarial review, live behavioral QA, and fingerprint-bound receipts."
+    skills:
+      - adversarial-review
+      - qa-verify
 
   - id: cross-cutting
     title: Cross-Cutting
