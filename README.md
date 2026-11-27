@@ -74,7 +74,7 @@ Useful flags: `--force` to overwrite existing skills, `--no-adapter` to install 
 # Verify all 12 declared skills resolve cleanly
 python build.py --check
 
-# Build dist/bstack-0.6.0.zip with MANIFEST.json (sha256 per file)
+# Build dist/bstack-0.6.1.zip with MANIFEST.json (sha256 per file)
 python build.py
 ```
 
