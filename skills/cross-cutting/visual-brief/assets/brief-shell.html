@@ -47,7 +47,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2.5px solid var(--ink);out
 .workspace{flex:1;min-height:0;display:flex;position:relative;overflow:hidden}
 .canvas{flex:1;min-width:0;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:18px}
 .zone-box{border:1.5px dashed var(--ctl);border-radius:14px;background:var(--zone);padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px}
-.zone-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.zone-hdr{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px}
 .zone-lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .flow-row{display:flex;flex-wrap:wrap;align-items:stretch;gap:12px}
 .arrow-sep{display:flex;align-items:center;color:var(--ctl);font-weight:700;font-size:18px;user-select:none}
@@ -113,8 +113,16 @@ textarea.out{font-family:var(--mono);font-size:12.5px}
 .leg-sw.b{border-color:var(--accentB);background:var(--accentBSoft)}
 .dock-actions{display:flex;gap:8px;align-items:center;margin-left:auto}
 @media (max-width:780px){
+  header{padding:10px 12px;gap:8px}
+  h1{font-size:16px}
+  .tabs{width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .tab{flex:none;white-space:nowrap}
+  .node{max-width:none;width:100%;flex:1 1 100%}
   .quad-grid{grid-template-columns:1fr}
   .arrow-sep{transform:rotate(90deg);justify-content:center;width:100%;height:20px}
+  .dock{padding:6px 10px}
+  .legend{display:none}
+  .dock-actions{width:100%;justify-content:flex-end}
   aside.inspector{position:fixed;left:8px;right:8px;bottom:68px;top:auto;width:auto;max-height:62vh;border:1.5px solid var(--ctl);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.28);z-index:20}
   .canvas{padding:12px}
 }
