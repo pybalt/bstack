@@ -6,7 +6,7 @@ Pick **one** primary format per artifact based on what the user needs to underst
 
 | User Situation | Format | Core Visual Primitives |
 | :--- | :--- | :--- |
-| **`grill` decisions, trade-offs, frameworks** | **Decision Board** | 4-axis Problem Profile bar + competing option cards (Baseline Simple highlighted) with visual score bars (Fit, Friction, Debt, Solidity, Exit) + breakpoint callout + interactive radio/note selectors with **"Copy responses"**. Also renders 2×2 matrices (Impact × Feasibility), RICE/MoSCoW tables, or Pre-Mortem risk grids. |
+| **`grill` decisions, trade-offs, frameworks** | **Decision Board / 2×2 Matrix** | 4-axis Problem Profile + competing option cards (Baseline Simple highlighted) with score bars, totals, and breakpoint callout — plus 2×2 desirability matrices (**Green** = Quick Wins `Do First`, **Amber** = Big Bets `Spike / Stage`, **Neutral** = Fill-ins `Optional`, **Hatched Gray + Strikethrough** = Money Pits `Avoid`). Decisions are inspected visually here and answered directly in the main chat. |
 | **Architecture, business flows, `onboarding`** | **System / Flow Explorer** | Interactive SVG canvas (pan/zoom, click-to-inspect dimming unrelated items) with 3 depth levels + open-question badges on nodes/edges. Follow *Process vs System* classification below. |
 | **PRs, refactors, bug fixes, `review`** | **Change Walkthrough** | 10-second executive header + impacted module map + **Before vs After** visual diff/flow comparison + Verified vs Unverified checks semaphore + risks/rollback box. |
 | **Proposals, pitches, complex explanations** | **Slide Deck** | One idea per slide, keyboard navigation (`←` / `→` / progress bar), visual diagrams/metrics over prose, expandable speaker/technical notes tucked behind a toggle. |

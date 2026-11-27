@@ -28,5 +28,5 @@ Verify before delivering the artifact (programmatically via headless Chrome/Play
 - [ ] Valid standalone `<!doctype html>` + viewport tag + zero console/JS errors.
 - [ ] Light and dark themes pass WCAG contrast (`>= 4.5:1` for text, `>= 3:1` for strokes/controls).
 - [ ] Zero overlapping cards, labels, or clipped text at both desktop (`1280×800`) and mobile (`390×844`) viewports.
-- [ ] Every interactive control (cards/nodes, expand detail, theme toggle, slide nav, "Copy responses" + clipboard fallback) works cleanly.
+- [ ] Every interactive control (tabs, cards/nodes, Show details, Open decisions drawer, theme toggle, slide nav) works cleanly with zero console errors.
 - [ ] Copy respects 3-level disclosure (no walls of text visible upfront).

@@ -20,16 +20,18 @@ Generate the legend dynamically from only the shapes, statuses, and actors actua
 - **Expandable detail (Level 3):** Grouped short headings (*Decided*, *Measured*, *Constraints*, *Trade-offs*) with bullet items **≤ 12 words**, one fact per bullet.
 - **Zero duplication:** Never repeat in prose what the layout, container zone, arrow direction, or score bar already communicates.
 
-## 3. Interactive "Decisions Back to Chat" Loop
+## 3. Desirability Color Coding for 2×2 Matrices (`matrix2x2`)
 
-Whenever the artifact contains open questions, `grill` branches, or review approvals:
+Encode strategic desirability directly into the four quadrants so priority reads in under a second (light and dark WCAG-compliant):
 
-1. Attach open items (`open`) directly to the relevant node, card, or option — **plus** expose a unified **"Pending (answered/total)"** drawer button in the control bar.
-2. Each item offers **2–4 concrete radio options** (recommended option first with measured reason) **plus "Other"** with a free-text input.
-3. Persist selections in `localStorage` keyed by a unique artifact ID (`visual-brief:<slug>-<hash>`, never bare `document.title`) so reloads don't lose progress.
-4. Provide a **"Copy responses"** button outputting clean numbered markdown:
-   ```text
-   Responses for "<Artifact Title>":
-   1. [Section/Node] <Question> -> <Chosen Option or Custom Note>
-   ```
-5. If `navigator.clipboard.writeText` fails (sandboxed iframe / file URL), automatically reveal and select a read-only `<textarea>` so the user can copy with `Ctrl+C` / `Cmd+C`.
+| Quadrant | `tone` | Visual Encoding | Badge |
+| :--- | :---: | :--- | :--- |
+| **Quick Wins** *(High Impact · High Feasibility)* | `win` | Soft green surface & border, green heading/dot | `Do First` |
+| **Big Bets** *(High Impact · Lower Feasibility)* | `bet` | Soft warm amber surface & border, amber heading/dot | `Spike / Stage` |
+| **Fill-ins** *(Low Impact · High Feasibility)* | `fill` | Quiet neutral surface (`--zone`), low prominence | `Optional` |
+| **Money Pits** *(Low Impact · High Effort)* | `cut` | Muted gray surface with diagonal SVG hatch + strikethrough titles | `Avoid` |
+
+## 4. Chat-First Decision Flow (Zero Copy-Paste Friction)
+
+1. Attach open items (`open`) to relevant nodes/cards AND expose an **"Open decisions"** summary drawer in the header showing each question + options (with the recommended option highlighted) so the user can inspect context visually.
+2. Never put form radios or "Copy responses" buttons inside the HTML — **ask the actual decision in the main agent chat** (`ask_question` / `AskUserQuestion` / direct prompt) right alongside the artifact link so the user explores the visual brief and clicks/replies once in chat.

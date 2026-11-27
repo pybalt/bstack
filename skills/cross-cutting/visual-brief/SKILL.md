@@ -27,7 +27,7 @@ Load **only** the reference(s) needed for the artifact being built:
 | Need | Load ONLY this file | Inside |
 | :--- | :--- | :--- |
 | Pick the right visual format (Decision Board, Diagram, Walkthrough, Slides, Stepper) | `references/formats-and-modes.md` | Format selector + Process vs System rules |
-| Copy density, 3-level disclosure, visual grammar & "Copy Responses" feedback loop | `references/ux-and-copy-rules.md` | Anti-wall-of-text rules + interactive Q&A loop |
+| Copy density, 3-level disclosure, 2×2 desirability palette & chat-first decisions | `references/ux-and-copy-rules.md` | Anti-wall-of-text rules + artifact-to-chat workflow |
 | Single-file HTML contract, desktop+mobile layout, WCAG contrast, XSS safety & QA | `references/html-contract-and-qa.md` | Standalone HTML spec + verification checklist |
 
 **Reusable Shell & Validator (Preferred Workflow):**
@@ -42,6 +42,6 @@ Load **only** the reference(s) needed for the artifact being built:
    - *Level 2 (Card / Inspector):* one crisp sentence (≤ 14 words) explaining the selected element.
    - *Level 3 (Expandable Detail):* grouped bullet points (≤ 12 words each) revealed on demand.
 3. **Desktop AND Mobile first-class.** Desktop (`>= 1000px`): wide layout, keyboard navigation, side inspector that never shifts the canvas. Mobile (`< 780px`): stacked/vertical layout, touch targets `>= 44px`, bottom sheet that never covers the active control bar.
-4. **Interactive feedback loop back to chat.** Whenever the artifact asks the user to choose options, resolve open questions (`grill`), or review items, include interactive selectors + a **"Copy responses"** button (with visible fallback textarea if clipboard access is blocked) so the user can paste decisions straight back into chat.
+4. **Artifact to build intuition, chat to decide (zero copy-paste friction).** Surface open questions and candidate options cleanly inside the brief so the user can inspect context and form judgment — then ask the actual decision directly in the main chat (`ask_question` / `AskUserQuestion` / chat prompt). Never force the user to fill forms in HTML and copy-paste answers back.
 5. **Single standalone HTML, zero build, zero vendor lock-in.** Must include `<!doctype html>` and `<meta name="viewport" content="width=device-width,initial-scale=1">`, work offline with system font fallbacks, support light & dark themes with WCAG contrast, render untrusted strings via `textContent` (zero `innerHTML`), and never depend on proprietary IDE artifact wrappers.
 6. **Verify before handing off.** Check light + dark rendering, zero overlaps/clipping on desktop and mobile viewports, zero JS errors, and working interactive controls before sharing the file path or link.
