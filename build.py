@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """bstack builder.
 
-Lee bstack.yaml, resuelve cada skill en los directorios locales de skills de
-agentes, arma un bundle con MANIFEST.json (sha256 por archivo) y lo comprime en
-dist/.
+Reads bstack.yaml, resolves each declared skill across local agent skill
+directories, builds a bundle with MANIFEST.json (sha256 per file), and writes
+it to dist/.
 
-  python build.py           # construye dist/bstack-<version>.zip
-  python build.py --check   # valida que todos los skills existan
+  python build.py           # build dist/bstack-<version>.zip
+  python build.py --check   # verify all declared skills exist locally
 """
 import argparse
 import hashlib
@@ -114,9 +114,9 @@ def sha256(p: Path) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true")
-    ap.add_argument("--skills-dir", help="Directorio local donde buscar los skills.")
+    ap = argparse.ArgumentParser(description="Validate and package bstack skills.")
+    ap.add_argument("--check", action="store_true", help="Validate declared skills without writing a bundle.")
+    ap.add_argument("--skills-dir", help="Local directory to search for skills.")
     args = ap.parse_args()
 
     skills_dirs = resolve_skills_dirs(args.skills_dir)
@@ -131,10 +131,10 @@ def main() -> int:
                 resolved.append((layer["id"], name, d))
 
     declared = sum(len(l["skills"]) for l in manifest["layers"])
-    print(f"capas: {len(manifest['layers'])} | skills declarados: {declared}")
-    print(f"resueltos: {len(resolved)} | faltantes: {len(missing)}")
+    print(f"stages: {len(manifest['layers'])} | declared skills: {declared}")
+    print(f"resolved: {len(resolved)} | missing: {len(missing)}")
     for m in missing:
-        print("  FALTA:", m)
+        print("  MISSING:", m)
     if args.check or missing:
         return 1 if missing else 0
 
@@ -166,14 +166,22 @@ def main() -> int:
         "totals": {"skills": len(entries), "files": sum(len(e["files"]) for e in entries)},
     }
     (stage / "MANIFEST.json").write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    stage_lines = []
+    for l in manifest["layers"]:
+        blurb = l.get("blurb") or "WIP"
+        count = len(l["skills"])
+        noun = "skill" if count == 1 else "skills"
+        stage_lines.append(f"- **{l['title']}** (`{l['id']}`): {blurb} — {count} {noun}")
+
     (stage / "README.md").write_text(
         f"# bstack v{manifest.get('version')}\n\n"
         f"{' '.join(manifest.get('description', '').split())}\n\n"
-        "## Instalar\n\n"
-        "Copiar cada `skills/<etapa>/<skill>` (o `<skill>` en estructura plana) al directorio de skills de tu agente.\n\n"
-        "## Etapas\n\n"
-        + "\n".join(f"- **{l['title']}** (`{l['id']}`): {l.get('blurb','')} — {len(l['skills'])} skills" for l in manifest["layers"])
-        + f"\n\nTotal: {out['totals']['skills']} skills, {out['totals']['files']} archivos.\n",
+        "## Install\n\n"
+        "Copy each `skills/<stage>/<skill>` (or `<skill>` in a flat layout) into your agent's skills directory.\n\n"
+        "## Stages\n\n"
+        + "\n".join(stage_lines)
+        + f"\n\nTotal: {out['totals']['skills']} skills, {out['totals']['files']} files.\n",
         encoding="utf-8",
     )
 

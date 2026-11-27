@@ -33,7 +33,7 @@ def agent_target(agent: str) -> tuple[Path, str]:
             return Path(hermes_home).expanduser() / "skills", "layered"
         win_dir = home / "AppData" / "Local" / "hermes" / "skills"
         return (win_dir if win_dir.exists() else home / ".hermes" / "skills"), "layered"
-    raise ValueError(f"Agente no soportado: {agent}")
+    raise ValueError(f"Unsupported agent: {agent}")
 
 
 def resolve_sources_from_zip(zip_path: Path, stage: Path, manifest: dict) -> list[tuple[str, str, Path]]:
@@ -46,7 +46,7 @@ def resolve_sources_from_zip(zip_path: Path, stage: Path, manifest: dict) -> lis
         for name in layer["skills"]:
             src = stage / "skills" / lid / name
             if not (src / "SKILL.md").is_file():
-                raise FileNotFoundError(f"Falta {lid}/{name} dentro de {zip_path}")
+                raise FileNotFoundError(f"Missing {lid}/{name} inside {zip_path}")
             resolved.append((lid, name, src))
     return resolved
 
@@ -66,7 +66,7 @@ def resolve_sources_local(skills_dirs: list[Path], manifest: dict) -> list[tuple
     if missing:
         searched = ", ".join(str(d) for d in skills_dirs)
         raise FileNotFoundError(
-            f"Faltan {len(missing)} skills en [{searched}]: " + ", ".join(missing)
+            f"Missing {len(missing)} skills in [{searched}]: " + ", ".join(missing)
         )
     return resolved
 
@@ -88,27 +88,27 @@ def copy_skill(src: Path, dst: Path, force: bool, dry_run: bool) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Instala los skills de bstack en un agente.")
+    ap = argparse.ArgumentParser(description="Install bstack skills into a target coding agent.")
     ap.add_argument(
         "--agent",
         choices=[*AGENT_CHOICES, "all"],
-        help="Agente destino (antigravity, claude, codex, hermes, o all).",
+        help="Target agent (antigravity, claude, codex, hermes, or all).",
     )
-    ap.add_argument("--target", type=Path, help="Directorio destino personalizado.")
+    ap.add_argument("--target", type=Path, help="Custom destination directory.")
     ap.add_argument(
         "--layout",
         choices=["flat", "layered"],
         default=None,
-        help="Estructura en destino: flat (<dir>/<skill>) o layered (<dir>/<etapa>/<skill>).",
+        help="Destination layout: flat (<dir>/<skill>) or layered (<dir>/<stage>/<skill>).",
     )
-    ap.add_argument("--zip", type=Path, dest="zip_path", help="Bundle bstack-<version>.zip de origen.")
-    ap.add_argument("--skills-dir", help="Directorio local origen donde buscar los skills.")
-    ap.add_argument("--force", action="store_true", help="Sobrescribe skills existentes en destino.")
-    ap.add_argument("--dry-run", action="store_true", help="Muestra que haria sin copiar archivos.")
+    ap.add_argument("--zip", type=Path, dest="zip_path", help="Source bstack-<version>.zip bundle.")
+    ap.add_argument("--skills-dir", help="Local source directory to search for skills.")
+    ap.add_argument("--force", action="store_true", help="Overwrite existing skills at destination.")
+    ap.add_argument("--dry-run", action="store_true", help="Preview actions without copying files.")
     args = ap.parse_args()
 
     if not args.agent and not args.target:
-        ap.error("Indica --agent {antigravity,claude,codex,hermes,all} o --target <ruta>.")
+        ap.error("Specify --agent {antigravity,claude,codex,hermes,all} or --target <path>.")
 
     manifest = parse_yaml(ROOT / "bstack.yaml")
     default_zip = ROOT / "dist" / f"{manifest.get('name', 'bstack')}-{manifest.get('version', '0.1.0')}.zip"
@@ -129,7 +129,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         if zip_path is not None:
             if not zip_path.is_file():
-                print(f"Error: no existe el bundle {zip_path}", file=sys.stderr)
+                print(f"Error: bundle not found: {zip_path}", file=sys.stderr)
                 return 1
             sources = resolve_sources_from_zip(zip_path, Path(tmp), manifest)
         else:
@@ -144,7 +144,7 @@ def main() -> int:
             prefix = "[dry-run] " if args.dry_run else ""
             print(
                 f"{prefix}{label} ({dest_root}, {layout}): "
-                f"{counts['installed']} instalados, {counts['updated']} actualizados, {counts['skipped']} omitidos"
+                f"{counts['installed']} installed, {counts['updated']} updated, {counts['skipped']} skipped"
             )
     return 0
 

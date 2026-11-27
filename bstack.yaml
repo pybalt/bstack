@@ -2,60 +2,56 @@ name: bstack
 version: 0.1.0
 author: Leonel Baltazar Bravo
 description: >
-  Stack personal de skills de desarrollo ordenado por etapa: environment,
-  onboarding, planificacion, construccion, delegacion, depuracion y revision.
+  Personal agentic development skill stack organized by workflow stage:
+  environment, onboarding, planning, building, delegation, debugging, review,
+  and cross-cutting tools.
 license: MIT
 
 layers:
   - id: environment
     title: Environment
-    blurb: "DevEX, Org-Knowledge MCP, Deployments, VM, Terminal, Versioning y Harness."
+    blurb: "DevEX, Organizational Knowledge MCP, deployments, private VMs, terminal proxies, versioning, and harnesses."
     skills:
       - environment
 
   - id: onboarding
     title: Onboarding
-    blurb: "Mapeo real de repos existentes y arranque guiado de proyectos nuevos."
+    blurb: "Fast codebase mapping for existing repos and guided seeding for new projects."
     skills:
       - onboarding
 
   - id: plan
-    title: Entender antes de escribir
-    blurb: "Leer el terreno, experimentar rapido y aislar la causa antes de tocar codigo."
+    title: Plan & Decide
+    blurb: "Measured domain-aware grilling with engineering frameworks and quarantined spikes before coding."
     skills:
-      - plan
+      - grill
       - spike
-      - systematic-debugging
 
-  - id: construir
-    title: Construir
-    blurb: "TDD, portado fiel de librerias y stack unificado de UI/UX y motion."
+  - id: build
+    title: Build
+    blurb: ""
     skills:
-      - test-driven-development
-      - portado-fiel-de-libreria
       - uiux
 
-  - id: delegar
-    title: Delegar a CLIs de codigo
-    blurb: "Cuando conviene delegar ejecucion: que CLI usar y con que encargo."
-    skills:
-      - claude-code
-      - codex
-      - opencode
-      - cursor-orchestration
+  - id: delegate
+    title: Delegate
+    blurb: ""
+    skills: []
 
-  - id: depurar
-    title: Depurar
-    blurb: "Cuando algo no cierra: debugger real y analisis de causa raiz."
+  - id: debug
+    title: Debug
+    blurb: "Systematic 4-phase root-cause investigation with tight feedback loops and automated git bisect."
     skills:
-      - node-inspect-debugger
-      - python-debugpy
-      - rea-reverse-engineering
+      - systematic-debugging
 
-  - id: revisar
-    title: Revisar y verificar
-    blurb: "Revision de calidad, simplificacion y verificacion con evidencia ejecutada."
+  - id: review
+    title: Review
+    blurb: ""
+    skills: []
+
+  - id: cross-cutting
+    title: Cross-Cutting
+    blurb: "Cognitive-load-reducing interactive visual briefs (desktop + mobile) and multi-family evolutionary optimization."
     skills:
-      - requesting-code-review
-      - simplify-code
-      - verification-before-completion
+      - visual-brief
+      - evolve

@@ -1,46 +1,55 @@
 # bstack
 
-Stack personal de skills de desarrollo para agentes de código, ordenado **por etapa del flujo de trabajo** y no por herramienta o lenguaje.
+Personal development skill stack for coding agents, organized **by engineering workflow stage** rather than by language or vendor tool.
 
-La definición canónica del stack vive en [`bstack.yaml`](./bstack.yaml) (**7 etapas, 18 skills**), compatible con cualquier agente que use el estándar `SKILL.md` (Antigravity, Claude Code, Codex, Cursor, Hermes, etc.).
+The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages** — currently **8 curated skills**, remaining stages WIP), compatible with any agent supporting the `SKILL.md` standard (Antigravity, Claude Code, Codex, Cursor, Hermes, etc.).
 
-## Etapas del stack
+## Workflow Stages
 
-| # | Etapa (`id`) | Qué resuelve | Skills |
-| - | ------------ | ------------ | ------ |
-| 1 | **Environment** (`environment`) | DevEX, Org-Knowledge MCP, Deployments, VM, Terminal, Versioning y Harness. | `environment` |
-| 2 | **Onboarding** (`onboarding`) | Mapeo real de repos existentes y arranque guiado de proyectos nuevos. | `onboarding` |
-| 3 | **Entender antes de escribir** (`plan`) | Leer el terreno, experimentar rápido y aislar la causa antes de editar. | `plan`, `spike`, `systematic-debugging` |
-| 4 | **Construir** (`construir`) | TDD, portado fiel de librerías y stack unificado de UI/UX y motion. | `test-driven-development`, `portado-fiel-de-libreria`, `uiux` |
-| 5 | **Delegar a CLIs de codigo** (`delegar`) | Cuando conviene delegar ejecución: qué CLI usar y con qué encargo. | `claude-code`, `codex`, `opencode`, `cursor-orchestration` |
-| 6 | **Depurar** (`depurar`) | Cuando algo no cierra: debugger real y análisis de causa raíz. | `node-inspect-debugger`, `python-debugpy`, `rea-reverse-engineering` |
-| 7 | **Revisar y verificar** (`revisar`) | Revisión de calidad, simplificación y verificación con evidencia ejecutada. | `requesting-code-review`, `simplify-code`, `verification-before-completion` |
+| # | Stage (`id`) | Scope | Skills |
+| - | ------------ | ----- | ------ |
+| 1 | **Environment** (`environment`) | DevEX, Organizational Knowledge MCP, deployments, private VMs, terminal proxies, versioning, and harnesses. | `environment` |
+| 2 | **Onboarding** (`onboarding`) | Fast codebase mapping for existing repos and guided seeding for new projects. | `onboarding` |
+| 3 | **Plan & Decide** (`plan`) | Measured domain-aware grilling with engineering frameworks and quarantined spikes before coding. | `grill`, `spike` |
+| 4 | **Build** (`build`) | *WIP* | `uiux` |
+| 5 | **Delegate** (`delegate`) | *WIP* | — |
+| 6 | **Debug** (`debug`) | Systematic 4-phase root-cause investigation with tight feedback loops and automated `git bisect`. | `systematic-debugging` |
+| 7 | **Review** (`review`) | *WIP* | — |
+| 8 | **Cross-Cutting** (`cross-cutting`) | Interactive visual briefs (desktop + mobile) and multi-family evolutionary crossover optimization. | `visual-brief`, `evolve` |
 
-## Estructura del repositorio
+## Repository Layout
 
-Este repositorio versiona **el manifiesto del stack, el builder y el instalador** (sin redistribuir archivos de skills de terceros):
+This repository versions **the stack manifest, builder, and installers** (without redistributing raw third-party skill trees):
 
-- `bstack.yaml`: manifiesto declarativo de etapas y skills.
-- `build.py`: valida los skills declarados contra tus directorios locales de skills y genera `dist/bstack-<version>.zip` con `MANIFEST.json` (`sha256` por archivo).
-- `install.py` / `install.ps1` / `install.sh`: instala el stack en tu agente destino desde un bundle `.zip` o desde tus directorios locales.
+- `bstack.yaml`: declarative manifest of workflow stages and skills.
+- `build.py`: validates declared skills against your local skill directories and packages `dist/bstack-<version>.zip` with `MANIFEST.json` (`sha256` per file).
+- `install.py` / `install.ps1` / `install.sh`: installs the stack into your target agent from a built `.zip` bundle or directly from local skill directories.
 
-## Uso
+## Usage
 
-### 1. Validar y empaquetar
+### 1. Validate and Package
 
-Requiere Python 3.10+ (sin dependencias externas). Por defecto busca tus skills en `~/.agents/skills`, `~/.gemini/config/skills`, `~/.claude/skills`, `~/.codex/skills` o podés indicar la carpeta con `--skills-dir` o `BSTACK_SKILLS_DIR`.
+Requires Python 3.10+ (standard library only). By default, `build.py` resolves skills from `~/.agents/skills`, `~/.gemini/config/skills`, `~/.claude/skills`, `~/.codex/skills`, and Hermes skill folders, or you can override with `--skills-dir` / `BSTACK_SKILLS_DIR`.
 
 ```bash
-# Verificar que los 18 skills existan localmente
+# Check that all declared skills exist locally
 python build.py --check
 
-# Construir dist/bstack-0.1.0.zip con MANIFEST.json
+# Build dist/bstack-0.1.0.zip with MANIFEST.json
 python build.py
 ```
 
-### 2. Instalar en tu agente
+### 2. Install into Your Agent
 
-Podés instalar desde tus skills locales o desde un bundle con `--zip dist/bstack-0.1.0.zip`:
+Install from your local skill directories or from a packaged bundle with `--zip dist/bstack-0.1.0.zip`:
+
+```bash
+# Linux / macOS (recommended for coding agent workflows)
+./install.sh --agent claude
+./install.sh --agent codex
+./install.sh --agent antigravity
+./install.sh --agent all --dry-run
+```
 
 ```powershell
 # Windows (PowerShell)
@@ -50,23 +59,15 @@ Podés instalar desde tus skills locales o desde un bundle con `--zip dist/bstac
 .\install.ps1 -Agent all -DryRun
 ```
 
-```bash
-# Linux / macOS (Bash)
-./install.sh --agent claude
-./install.sh --agent codex
-./install.sh --agent antigravity
-./install.sh --agent all --dry-run
-```
-
-Rutas destino por defecto:
+Default destination paths:
 
 - **Antigravity**: `~/.gemini/config/skills/<skill>`
 - **Claude Code**: `~/.claude/skills/<skill>`
-- **Codex**: `~/.codex/skills/<skill>` (o `~/.agents/skills/<skill>` si no existe `~/.codex`)
-- **Hermes**: `~/AppData/Local/hermes/skills/<etapa>/<skill>` (Windows) o `~/.hermes/skills/<etapa>/<skill>` (Unix)
+- **Codex**: `~/.codex/skills/<skill>` (falls back to `~/.agents/skills/<skill>` if `~/.codex` does not exist)
+- **Hermes**: `~/.hermes/skills/<stage>/<skill>` (Unix) or `~/AppData/Local/hermes/skills/<stage>/<skill>` (Windows)
 
-Flags útiles: `--force` para sobrescribir existentes, `--target <ruta>` para una carpeta custom, `--layout flat|layered` para elegir estructura plana o por etapa, y `--dry-run` para previsualizar.
+Useful flags: `--force` to overwrite existing skills, `--target <path>` for a custom directory, `--layout flat|layered` to choose flat or stage-nested folders, and `--dry-run` to preview changes.
 
-## Licencia
+## License
 
 [MIT](./LICENSE) — Leonel Baltazar Bravo
