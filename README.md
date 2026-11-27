@@ -26,31 +26,19 @@ The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages
 
 ## Repository Layout
 
-This repository versions **the stack manifest, builder, and installers** (without redistributing raw third-party skill trees):
-
 - `bstack.yaml`: declarative manifest of workflow stages and skills.
-- `build.py`: validates declared skills against your local skill directories and packages `dist/bstack-<version>.zip` with `MANIFEST.json` (`sha256` per file).
-- `install.py` / `install.ps1` / `install.sh`: installs the stack into your target agent from a built `.zip` bundle or directly from local skill directories.
+- `skills/<stage>/<skill>/`: all 12 self-contained skills (`SKILL.md`, `references/`, `templates/`, `scripts/`).
+- `install.py` / `install.ps1` / `install.sh`: installs the stack directly from `./skills/` (or a `.zip` bundle) into your target agent.
+- `build.py`: validates every declared skill and optionally builds an offline `dist/bstack-<version>.zip` bundle with `MANIFEST.json` (`sha256` per file).
 
-## Usage
+## Quick Install
 
-### 1. Validate and Package
-
-Requires Python 3.10+ (standard library only). By default, `build.py` resolves skills from `~/.agents/skills`, `~/.gemini/config/skills`, `~/.claude/skills`, `~/.codex/skills`, and Hermes skill folders, or you can override with `--skills-dir` / `BSTACK_SKILLS_DIR`.
-
-```bash
-# Check that all 12 declared skills exist locally
-python build.py --check
-
-# Build dist/bstack-0.2.0.zip with MANIFEST.json
-python build.py
-```
-
-### 2. Install into Your Agent
-
-Install from your local skill directories or from a packaged bundle with `--zip dist/bstack-0.2.0.zip`:
+Requires Python 3.10+ (standard library only). Clone and install directly into your agent:
 
 ```bash
+git clone https://github.com/pybalt/bstack.git
+cd bstack
+
 # Linux / macOS (recommended for coding agent workflows)
 ./install.sh --agent claude
 ./install.sh --agent codex
@@ -73,7 +61,17 @@ Default destination paths:
 - **Codex**: `~/.codex/skills/<skill>` (falls back to `~/.agents/skills/<skill>` if `~/.codex` does not exist)
 - **Hermes**: `~/.hermes/skills/<stage>/<skill>` (Unix) or `~/AppData/Local/hermes/skills/<stage>/<skill>` (Windows)
 
-Useful flags: `--force` to overwrite existing skills, `--target <path>` for a custom directory, `--layout flat|layered` to choose flat or stage-nested folders, and `--dry-run` to preview changes.
+Useful flags: `--force` to overwrite existing skills, `--target <path>` for a custom directory, `--layout flat|layered` to choose flat or stage-nested folders, `--zip <bundle>` to install from a packaged archive, and `--dry-run` to preview changes.
+
+### Validate & Package (Optional Offline Bundle)
+
+```bash
+# Verify all 12 declared skills resolve cleanly
+python build.py --check
+
+# Build dist/bstack-0.2.0.zip with MANIFEST.json (sha256 per file)
+python build.py
+```
 
 ## License
 

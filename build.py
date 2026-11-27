@@ -29,6 +29,7 @@ def resolve_skills_dirs(explicit: str | None = None) -> list[Path]:
 
     home = Path.home()
     candidates: list[Path] = [
+        ROOT / "skills",
         home / ".agents" / "skills",
         home / ".gemini" / "config" / "skills",
         home / ".claude" / "skills",
