@@ -33,6 +33,8 @@ Classify the problem domain first (1 primary lens, or 2 if hybrid), then load **
 | AI features, LLM workflows, prompts, agents | `references/lens-ai.md` | Deterministic-first gate, evals, cost/latency, privacy, fallbacks |
 | Cloud, infra, networking, deployments, platform | `references/lens-infra.md` | Blast radius, cost model, zero-trust connectivity, ops burden |
 
+**Copy-ready templates (`assets/`):** Load `assets/engineering-frameworks-templates.md` when applying 1–2 selected frameworks (4 Value Levers, 2×2, RICE/MoSCoW, CUJ, JTBD, Pugh, Pre-Mortem, STRIDE, RED/USE), and `assets/decision-brief-template.md` when emitting the closing Decision Brief.
+
 ## Non-Negotiable Operating Laws
 
 1. **Investigate before asking.** If a question can be answered by reading the repo or querying an Organizational Knowledge MCP (`environment`), answer it yourself — never waste the user's attention on discoverable facts.

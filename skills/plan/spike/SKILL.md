@@ -23,6 +23,7 @@ Validate high-risk technical unknowns with disposable, observable prototypes bef
 ## Progressive Disclosure
 
 - Load `references/templates.md` when decomposing multi-spike plans, formatting Given/When/Then tables, writing head-to-head comparisons, or running Frontier Mode.
+- Copy `assets/verdict-template.md` when writing each spike's `spikes/NNN-slug/README.md` verdict.
 
 ## Core Loop
 

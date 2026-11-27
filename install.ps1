@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("hermes", "claude", "codex", "antigravity", "all")]
+    [ValidateSet("hermes", "claude", "codex", "cursor", "antigravity", "all")]
     [string]$Agent,
     [string]$Target,
     [ValidateSet("flat", "layered")]

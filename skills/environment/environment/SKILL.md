@@ -30,7 +30,9 @@ Load **1–2 matching `references/*.md` files** before acting. Never read all 7 
 | Private VMs, Tailscale / IAP / SSM, sandboxes, host selection | `references/vm.md` | Host trade-off matrix + human escalation gate |
 | OS/shell choice, `rtk` token proxy, `tmux`/bus, log proxies, audit, daemons | `references/terminal.md` | Linux/macOS-first gate + redaction/recall rules |
 | Git proxies, worktrees, concurrent sessions, conflicts, tags | `references/versioning.md` | Worktree isolation + merge-both-intents gate |
-| Multi-role harness, model privacy routing, persistent memory (Engram), MCP/skill provisioning | `references/harness.md` | Role/UID boundaries + live auth probe + cross-session memory |
+| Multi-role harness, model privacy routing, persistent memory (Engram), knowledge sinks, MCP/skill provisioning | `references/harness.md` | Role/UID boundaries + live auth probe + Engram/ADR sinks |
+
+**Executable helper:** Run `python3 scripts/env_audit.py --cwd .` to inspect OS/shell readiness (flags Windows/PowerShell), agent CLI availability (`rtk`, `engram`, `docker`, `tmux`, `tailscale`), and `.env` key names only (JSON stdout).
 
 ## Non-Negotiable Operating Laws
 

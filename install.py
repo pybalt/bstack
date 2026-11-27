@@ -14,7 +14,7 @@ from pathlib import Path
 
 from build import ROOT, find_skill, parse_yaml, resolve_skills_dirs
 
-AGENT_CHOICES = ("antigravity", "claude", "codex", "hermes")
+AGENT_CHOICES = ("antigravity", "claude", "codex", "cursor", "hermes")
 
 
 def agent_target(agent: str) -> tuple[Path, str]:
@@ -28,6 +28,8 @@ def agent_target(agent: str) -> tuple[Path, str]:
         codex_dir = home / ".codex"
         base = codex_dir / "skills" if codex_dir.exists() else home / ".agents" / "skills"
         return base, "flat"
+    if agent == "cursor":
+        return home / ".cursor" / "skills", "flat"
     if agent == "hermes":
         if hermes_home := os.environ.get("HERMES_HOME"):
             return Path(hermes_home).expanduser() / "skills", "layered"
@@ -92,7 +94,7 @@ def main() -> int:
     ap.add_argument(
         "--agent",
         choices=[*AGENT_CHOICES, "all"],
-        help="Target agent (antigravity, claude, codex, hermes, or all).",
+        help="Target agent (antigravity, claude, codex, cursor, hermes, or all).",
     )
     ap.add_argument("--target", type=Path, help="Custom destination directory.")
     ap.add_argument(
@@ -108,7 +110,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not args.agent and not args.target:
-        ap.error("Specify --agent {antigravity,claude,codex,hermes,all} or --target <path>.")
+        ap.error("Specify --agent {antigravity,claude,codex,cursor,hermes,all} or --target <path>.")
 
     manifest = parse_yaml(ROOT / "bstack.yaml")
     default_zip = ROOT / "dist" / f"{manifest.get('name', 'bstack')}-{manifest.get('version', '0.1.0')}.zip"

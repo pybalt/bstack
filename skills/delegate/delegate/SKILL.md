@@ -25,7 +25,8 @@ Treat the main agent as a **lean orchestrator** that protects its context window
 
 ## Progressive Disclosure
 
-- Load **`references/delegation-contract.md`** before dispatching workers (Delegation Decision Gate, Surgical Worker Brief template, Worktree Isolation rules, Cross-Family Routing + Privacy Gate, and Bounded Retry / External Verification protocol).
+- Load **`references/delegation-contract.md`** before dispatching workers (Delegation Decision Gate, Worktree Isolation rules, Cross-Family Routing + Privacy Gate, and Bounded Retry / External Verification protocol).
+- Copy **`assets/worker-brief-template.md`** when authoring each scoped worker assignment.
 
 ## Non-Negotiable Operating Laws
 

@@ -41,25 +41,12 @@ During Layer 2 execution, inspect the actual emitted output:
 - Confirm health/error/business metrics increment as designed.
 - Confirm **zero** tokens, passwords, auth headers, or raw PII appear in logs, stack traces, or client-visible error payloads.
 
+### Layer 4 — Mandatory Post-QA Knowledge Closure (Final Step)
+Before marking any non-trivial feature, architectural change, refactor, or resolved incident complete, document **what was decided, designed, and shipped** using `assets/adr-and-closure-template.md` into the workspace's configured **Knowledge Sink(s)**:
+1. **Architecture / Design Board or Repo Docs:** Update the project's visual architecture board (via MCP, if configured) and/or write a compact ADR (`docs/adr/ADR-NNN-*.md`) + architecture/contract docs.
+2. **Cross-Session Memory (e.g., Engram):** Persist architectural decisions, newly verified commands, known hazards, and root-cause lessons so future sessions start informed.
+3. *(Exception:)* Trivial single-file inline edits with zero architectural or behavioral contract impact may record `N/A (trivial inline)` explicitly in the receipt.
+
 ## 3. RDD Verification Receipt (Required Closing Output)
 
-```markdown
-# Verification Receipt (RDD) — <branch / feature>
-- **Status:** VERIFIED | PARTIAL (unverified items listed) | BLOCKED
-- **Fingerprint:** `HEAD <sha>` · `diff <12-char-hash>` (Unchanged post-QA: Yes)
-- **Adversarial Review:** `<APPROVED / N/A (inline low-risk)>` (Blocking remaining: 0)
-
-## Executed Checks (Verified)
-| Gate | Command / Probe | Observed Result |
-| :--- | :--- | :--- |
-| Mechanical (build/lint/tests) | `<exact cmd>` | PASS (`<exact counts / exit 0>`) |
-| Behavioral / E2E QA | `<exact probe / flow>` | PASS (`<observed state / output>`) |
-| Observability & Security | `<log/metric/secret check>` | PASS (structured events present, 0 leaks) |
-
-## Not Verified / Environment Limits
-- <Explicit list of anything not executed and why — or "None">
-
-## Artifacts & Memory
-- Optional `visual-brief` walkthrough: `<path or N/A>`
-- Durable lessons / new commands persisted (e.g., Engram): `<yes/no>`
-```
+Copy `assets/receipt-template.md` and populate every row with real observed outputs and the verified post-QA fingerprint from `python3 scripts/fingerprint.py --compare <pre-qa-fp>`.

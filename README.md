@@ -8,7 +8,8 @@ The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages
 
 - **Proportional simplicity, zero technical debt:** overengineering is treated as a defect; ceremony and architecture scale with measured problem size and risk (**ODD** — Organic-Driven Development).
 - **Observability & Security by Design:** structured logs, health/business metrics, and trust-boundary guardrails are built in from day one, never deferred.
-- **Verifying beats generating (RDD):** frozen diff fingerprints, cross-model adversarial review (*Author ≠ Reviewer*), real behavioral QA, and evidence-backed receipts that invalidate on 1-byte drift.
+- **Verifying beats generating (RDD) + mandatory documentation closure:** frozen diff fingerprints, cross-model adversarial review (*Author ≠ Reviewer*), real behavioral QA, evidence-backed receipts that invalidate on 1-byte drift, and mandatory post-QA ADR/architecture/decision persistence to the workspace's knowledge sink(s) (Visual Architecture Board / `docs/adr/` + Engram).
+- **Standards-compliant 3-tier Progressive Disclosure:** every skill separates lean `SKILL.md` routers from on-demand `references/`, deterministic Python `scripts/` (JSON stdout), and copy-ready `assets/` templates (including engineering frameworks and a standalone interactive HTML shell).
 - **Context & environment parity:** prod-parity sandboxes gated by model privacy, Organizational Knowledge MCP, cross-session memory (e.g., [Engram](https://github.com/Gentleman-Programming/engram)), token-saving CLI proxies, and Linux-first execution.
 
 ## Workflow Stages
@@ -27,7 +28,7 @@ The canonical stack manifest lives in [`bstack.yaml`](./bstack.yaml) (**8 stages
 ## Repository Layout
 
 - `bstack.yaml`: declarative manifest of workflow stages and skills.
-- `skills/<stage>/<skill>/`: all 12 self-contained skills (`SKILL.md`, `references/`, `templates/`, `scripts/`).
+- `skills/<stage>/<skill>/`: all 12 self-contained skills (`SKILL.md`, `references/`, `scripts/`, `assets/`).
 - `install.py` / `install.ps1` / `install.sh`: installs the stack directly from `./skills/` (or a `.zip` bundle) into your target agent.
 - `build.py`: validates every declared skill and optionally builds an offline `dist/bstack-<version>.zip` bundle with `MANIFEST.json` (`sha256` per file).
 
@@ -42,6 +43,7 @@ cd bstack
 # Linux / macOS (recommended for coding agent workflows)
 ./install.sh --agent claude
 ./install.sh --agent codex
+./install.sh --agent cursor
 ./install.sh --agent antigravity
 ./install.sh --agent all --dry-run
 ```
@@ -51,6 +53,7 @@ cd bstack
 .\install.ps1 -Agent antigravity
 .\install.ps1 -Agent claude
 .\install.ps1 -Agent codex
+.\install.ps1 -Agent cursor
 .\install.ps1 -Agent all -DryRun
 ```
 
@@ -59,6 +62,7 @@ Default destination paths:
 - **Antigravity**: `~/.gemini/config/skills/<skill>`
 - **Claude Code**: `~/.claude/skills/<skill>`
 - **Codex**: `~/.codex/skills/<skill>` (falls back to `~/.agents/skills/<skill>` if `~/.codex` does not exist)
+- **Cursor**: `~/.cursor/skills/<skill>`
 - **Hermes**: `~/.hermes/skills/<stage>/<skill>` (Unix) or `~/AppData/Local/hermes/skills/<stage>/<skill>` (Windows)
 
 Useful flags: `--force` to overwrite existing skills, `--target <path>` for a custom directory, `--layout flat|layered` to choose flat or stage-nested folders, `--zip <bundle>` to install from a packaged archive, and `--dry-run` to preview changes.
@@ -69,7 +73,7 @@ Useful flags: `--force` to overwrite existing skills, `--target <path>` for a cu
 # Verify all 12 declared skills resolve cleanly
 python build.py --check
 
-# Build dist/bstack-0.2.0.zip with MANIFEST.json (sha256 per file)
+# Build dist/bstack-0.3.0.zip with MANIFEST.json (sha256 per file)
 python build.py
 ```
 

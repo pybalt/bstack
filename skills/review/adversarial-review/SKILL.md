@@ -22,7 +22,9 @@ Defeat single-agent blind spots and *AI sycophancy* by inspecting a **frozen dif
 
 ## Progressive Disclosure
 
-- Load **`references/review-lenses.md`** before reviewing (4 adversarial lenses, Blocking vs Non-Blocking triage rules, Bounded Correction cap, and the Review Report template).
+- Load **`references/review-lenses.md`** before reviewing (4 adversarial lenses, Blocking vs Non-Blocking triage rules, and Bounded Correction cap).
+- Run **`python3 scripts/diff_stats.py --cwd .`** first to compute the frozen diff fingerprint, check the ~400 LOC ODD slice cap, and detect Risk Override triggers automatically.
+- Format findings using **`assets/review-report-template.md`**.
 
 ## Non-Negotiable Operating Laws
 

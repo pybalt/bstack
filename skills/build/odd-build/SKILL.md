@@ -26,7 +26,8 @@ ODD Loop: Explore -> Ask (only if ambiguous/risky) -> Implement in Reviewable Sl
 
 ## Progressive Disclosure
 
-- Load **`references/odd-execution.md`** before starting any non-trivial or high-risk implementation (Diff Test + Risk Override table, Inline vs Tracked workflow, single resumable doc template, ~400 LOC slice discipline, Observability & Security build checklist, and proportionate testing guide).
+- Load **`references/odd-execution.md`** before starting any non-trivial or high-risk implementation (Diff Test + Risk Override table, Inline vs Tracked workflow, ~400 LOC slice discipline, Observability & Security build checklist, and proportionate testing guide).
+- Copy **`assets/feature-tracker-template.md`** only when running the **Tracked Path** (zero doc overhead on Inline Path).
 
 ## Non-Negotiable Operating Laws
 
@@ -37,4 +38,4 @@ ODD Loop: Explore -> Ask (only if ambiguous/risky) -> Implement in Reviewable Sl
 3. **Ship in reviewable change units (~400 LOC soft cap).** Build thin vertical slices (*Walking Skeleton* first) that compile, run, and can be reviewed cleanly instead of dumping 2,000-line diffs.
 4. **Observability & Security out of the box.** Emit structured logs (with correlation IDs and an explicit never-log list), health/business metrics, and boundary input/authz checks as part of the slice — never deferred as "follow-up".
 5. **Proportionate tests, zero dogma.** Write automated tests calibrated to behavioral risk (invariants, contracts, failure modes, regressions) — never skip tests on risky logic, and never write dogmatic TDD scaffolding or brittle mocks for trivial glue.
-6. **Never self-certify completion.** Once a slice is ready, hand off to `adversarial-review` and `qa-verify` (RDD receipt) and reconcile durable decisions/conventions into docs or cross-session memory (e.g., Engram).
+6. **Never self-certify completion — always close with QA + mandatory documentation.** Hand finished units to `adversarial-review` and `qa-verify` (RDD receipt), and as the **mandatory final post-QA step**, persist ADRs, architecture/design decisions, and actual changes into the configured Knowledge Sink(s) (Visual Architecture Board MCP / `docs/adr/` and/or cross-session memory like Engram).

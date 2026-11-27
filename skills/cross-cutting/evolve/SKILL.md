@@ -33,6 +33,10 @@ IF debugging and root cause is NOT yet proven -> HARD BLOCK. Run `systematic-deb
 | Full evolutionary loop (Cascades, Cross-Family Islands, Pareto, Parsimony, Crossover) | `references/evolution-protocol.md` | Always load before running Gen 0 |
 | Cross-stage handoffs (`grill`, `build`, `review`, Debug Phase 4) & Evolution Report | `references/cross-stage-triggers.md` | Integration triggers + report template |
 
+**Executable Helper & Template:**
+- Run **`python3 scripts/pareto_rank.py candidates.json`** after each generation to compute NSGA-II non-dominated Pareto fronts, identify dominated/bloated candidates, and check the `< 5%` 2-generation stagnation stop gate deterministically.
+- Format final output with **`assets/evolution-report-template.md`**.
+
 ## Non-Negotiable Operating Laws
 
 1. **Immutable evaluator, isolated `EVOLVE-BLOCK`.** Never let candidate generators modify the test harness, metrics, or benchmark inputs (prevents *reward hacking*).

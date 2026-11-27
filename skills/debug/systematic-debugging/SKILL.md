@@ -27,6 +27,7 @@ THE IRON LAW: NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 ## Progressive Disclosure
 
 - Load **`references/repro-and-bisect.md`** when building a hard reproduction loop, running automated **`git bisect run`** on regressions, minimizing a repro, or checking red-flag rationalizations.
+- Copy **`assets/bisect-check.sh`** outside the repo (e.g., `/tmp/bisect_check.sh`) when automating `git bisect run` with exit code `125` build-skip safety.
 
 ## The Four Phases (Strict Sequence)
 

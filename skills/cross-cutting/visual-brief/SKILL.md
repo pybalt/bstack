@@ -30,6 +30,10 @@ Load **only** the reference(s) needed for the artifact being built:
 | Copy density, 3-level disclosure, visual grammar & "Copy Responses" feedback loop | `references/ux-and-copy-rules.md` | Anti-wall-of-text rules + interactive Q&A loop |
 | Single-file HTML contract, desktop+mobile layout, WCAG contrast, XSS safety & QA | `references/html-contract-and-qa.md` | Standalone HTML spec + verification checklist |
 
+**Reusable Shell & Validator (Preferred Workflow):**
+1. Copy **`assets/brief-shell.html`** to the target `.html` path and edit **only** the `const BRIEF = { ... };` JSON between `// <DATA>` and `// </DATA>` (supports `flow`, `decision`, `matrix2x2`, `walkthrough`, and `slides` views out of the box).
+2. Validate deterministically before delivery: `python3 scripts/validate_brief.py <output.html>` (checks doctype, viewport, light/dark WCAG contrast, zero `innerHTML`, and copy-density caps).
+
 ## Non-Negotiable Operating Laws
 
 1. **Proportionality first (no visual bloat).** Never generate an HTML artifact when a concise chat answer communicates faster.
